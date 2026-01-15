@@ -1,0 +1,312 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  Package,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Truck,
+  ChevronRight,
+  Filter,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { orderService } from "@/services/orderService";
+import { formatCurrency, formatDate } from "@/utils/helpers";
+import {
+  ORDER_STATUS,
+  ORDER_STATUS_COLORS,
+  ORDER_STATUS_LABELS,
+} from "@/utils/constants";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+
+export default function OrdersPage() {
+  const { isAuthenticated, user } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  console.log(
+    "OrdersPage render - user:",
+    user,
+    "isAuthenticated:",
+    isAuthenticated
+  );
+
+  useEffect(() => {
+    console.log("Orders page useEffect - isAuthenticated:", isAuthenticated);
+    if (isAuthenticated) {
+      console.log("Calling fetchOrders...");
+      fetchOrders();
+    } else {
+      console.log("User not authenticated, skipping orders fetch");
+      setLoading(false);
+    }
+  }, [isAuthenticated, filter, page]);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const params = { page, limit: 10 };
+      if (filter !== "all") {
+        params.status = filter;
+      }
+
+      const response = await orderService.getOrders(params);
+      console.log("Orders API response:", response);
+
+      // Handle different response structures
+      let ordersData = [];
+      if (response.data?.orders) {
+        ordersData = response.data.orders;
+      } else if (response.orders) {
+        ordersData = response.orders;
+      } else if (Array.isArray(response.data)) {
+        ordersData = response.data;
+      } else if (Array.isArray(response)) {
+        ordersData = response;
+      }
+
+      console.log("Extracted orders:", ordersData);
+      setOrders(ordersData);
+      setTotalPages(
+        response.data?.meta?.totalPages || response.meta?.totalPages || 1
+      );
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+      console.error("Error response:", error.response?.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case ORDER_STATUS.COMPLETED:
+      case ORDER_STATUS.DELIVERED:
+        return CheckCircle;
+      case ORDER_STATUS.CANCELLED:
+        return XCircle;
+      case ORDER_STATUS.SHIPPED:
+        return Truck;
+      default:
+        return Clock;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    return ORDER_STATUS_COLORS[status] || "bg-gray-100 text-gray-800";
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center py-12">
+        <Package className="h-16 w-16 text-gray-400 mx-auto" />
+        <h1 className="text-2xl font-bold text-gray-900 mt-4">
+          No orders found
+        </h1>
+        <p className="text-gray-600 mt-2">Please login to view your orders</p>
+        <Link
+          href="/login"
+          className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Login to Continue
+        </Link>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
+          <p className="text-gray-600 mt-2">View and manage your orders</p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 bg-white rounded-lg shadow-sm p-4">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <Filter className="h-5 w-5 text-gray-400 mr-2" />
+            <span className="text-sm font-medium text-gray-700">
+              Filter by:
+            </span>
+          </div>
+          {[
+            "all",
+            "pending",
+            "processing",
+            "shipped",
+            "delivered",
+            "cancelled",
+          ].map((status) => (
+            <button
+              key={status}
+              onClick={() => {
+                setFilter(status);
+                setPage(1);
+              }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                filter === status
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              {status === "all"
+                ? "All Orders"
+                : ORDER_STATUS_LABELS[status] || status}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {orders.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+          <Package className="h-16 w-16 text-gray-400 mx-auto" />
+          <h2 className="text-xl font-medium text-gray-900 mt-4">
+            No orders found
+          </h2>
+          <p className="text-gray-600 mt-2">
+            {filter === "all"
+              ? "You haven't placed any orders yet."
+              : `No ${filter} orders found.`}
+          </p>
+          <Link
+            href="/products"
+            className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Start Shopping
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {orders.map((order) => {
+            const StatusIcon = getStatusIcon(order.status);
+            return (
+              <Link
+                key={order.id}
+                href={`/orders/${order.id}`}
+                className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4">
+                      <div
+                        className={`${getStatusColor(
+                          order.status
+                        )} px-3 py-1 rounded-full flex items-center`}
+                      >
+                        <StatusIcon className="h-4 w-4 mr-2" />
+                        <span className="text-sm font-medium">
+                          {ORDER_STATUS_LABELS[order.status] || order.status}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        Order #{order.order_number?.replace("ORD-", "")}
+                      </span>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Date Placed</p>
+                      <p className="font-medium">
+                        {formatDate(order.created_at)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Total Amount</p>
+                      <p className="font-medium">
+                        {formatCurrency(order.total_amount)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Items</p>
+                      <p className="font-medium">
+                        {order.items?.length || 0} items
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Shipping To</p>
+                      <p className="font-medium truncate">
+                        {order.shipping_address?.city},{" "}
+                        {order.shipping_address?.state}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <nav className="flex items-center space-x-2">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+
+            {[...Array(totalPages)].map((_, i) => {
+              const pageNumber = i + 1;
+              if (
+                pageNumber === 1 ||
+                pageNumber === totalPages ||
+                (pageNumber >= page - 1 && pageNumber <= page + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => setPage(pageNumber)}
+                    className={`px-4 py-2 rounded-lg text-sm ${
+                      page === pageNumber
+                        ? "bg-blue-600 text-white"
+                        : "border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              } else if (pageNumber === page - 2 || pageNumber === page + 2) {
+                return (
+                  <span key={pageNumber} className="px-2">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
+
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </nav>
+        </div>
+      )}
+    </div>
+  );
+}

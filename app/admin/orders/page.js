@@ -1,0 +1,291 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { orderService } from "@/services/api";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  Package,
+  Truck,
+  DollarSign,
+  User,
+  Calendar,
+  AlertCircle,
+  Edit,
+} from "lucide-react";
+
+const statusColors = {
+  pending: "bg-yellow-100 text-yellow-800",
+  processing: "bg-blue-100 text-blue-800",
+  shipped: "bg-purple-100 text-purple-800",
+  delivered: "bg-green-100 text-green-800",
+  completed: "bg-green-100 text-green-800",
+  cancelled: "bg-red-100 text-red-800",
+  refunded: "bg-gray-100 text-gray-800",
+};
+
+const statusIcons = {
+  pending: Clock,
+  processing: Package,
+  shipped: Truck,
+  delivered: CheckCircle,
+  completed: CheckCircle,
+  cancelled: XCircle,
+  refunded: DollarSign,
+};
+
+export default function AdminOrdersPage() {
+  const { user, isAuthenticated } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
+  const [statusDialog, setStatusDialog] = useState({
+    open: false,
+    orderId: null,
+    currentStatus: "",
+  });
+  const [newStatus, setNewStatus] = useState("");
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await orderService.getAllOrders();
+      setOrders(data.orders || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      showAlert("Error loading orders", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (isAuthenticated && user?.role === "admin") {
+      fetchOrders();
+    }
+  }, [isAuthenticated, user, fetch]);
+
+  const showAlert = (message, type = "success") => {
+    setAlert({ show: true, message, type });
+    setTimeout(
+      () => setAlert({ show: false, message: "", type: "success" }),
+      5000
+    );
+  };
+
+  const handleStatusChange = (orderId, currentStatus) => {
+    setStatusDialog({ open: true, orderId, currentStatus });
+    setNewStatus(currentStatus);
+  };
+
+  const updateOrderStatus = async () => {
+    try {
+      await orderService.updateOrderStatus(statusDialog.orderId, {
+        status: newStatus,
+      });
+      showAlert("Order status updated successfully", "success");
+      fetchOrders();
+      setStatusDialog({ open: false, orderId: null, currentStatus: "" });
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      showAlert("Error updating order status", "error");
+    }
+  };
+
+  if (!isAuthenticated || user?.role !== "admin") {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="text-red-600" size={20} />
+          <span className="text-red-800">
+            Access denied. Admin privileges required.
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Alert */}
+      {alert.show && (
+        <div
+          className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+            alert.type === "success"
+              ? "bg-green-50 border border-green-200 text-green-800"
+              : "bg-red-50 border border-red-200 text-red-800"
+          }`}
+        >
+          {alert.type === "success" ? (
+            <CheckCircle size={20} />
+          ) : (
+            <XCircle size={20} />
+          )}
+          <span>{alert.message}</span>
+        </div>
+      )}
+
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
+        <Package className="text-blue-600" size={32} />
+        Order Management
+      </h1>
+
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Order #
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {orders.map((order) => {
+                const StatusIcon = statusIcons[order.status] || Clock;
+                return (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {order.order_number}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center gap-2">
+                      <User size={16} className="text-gray-400" />
+                      {order.user?.email || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={16} className="text-gray-400" />
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                      <span className="font-semibold">
+                        ${order.total_amount}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-3 py-1 inline-flex items-center gap-1.5 text-xs leading-5 font-semibold rounded-full ${
+                          statusColors[order.status] ||
+                          "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        <StatusIcon size={14} />
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() =>
+                          handleStatusChange(order.id, order.status)
+                        }
+                        className="inline-flex items-center gap-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                      >
+                        <Edit size={16} />
+                        Change Status
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {orders.length === 0 && (
+            <div className="text-center py-12">
+              <Package size={48} className="mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-500">No orders found</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Status Update Dialog */}
+      {statusDialog.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold">Update Order Status</h2>
+            </div>
+            <div className="px-6 py-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select New Status
+              </label>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="refunded">Refunded</option>
+              </select>
+              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                <AlertCircle
+                  className="text-blue-600 mt-0.5 shrink-0"
+                  size={20}
+                />
+                <p className="text-sm text-blue-800">
+                  Changing the order status will notify the customer via email.
+                </p>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 flex gap-3 justify-end">
+              <button
+                onClick={() =>
+                  setStatusDialog({
+                    open: false,
+                    orderId: null,
+                    currentStatus: "",
+                  })
+                }
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updateOrderStatus}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
+                <CheckCircle size={16} />
+                Update Status
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

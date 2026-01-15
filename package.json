@@ -9,12 +9,22 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
+    "axios": "^1.13.2",
+    "heroicons": "^2.2.0",
+    "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-hook-form": "^7.71.1",
+    "react-hot-toast": "^2.6.0",
+    "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/node": "^25.0.8",
+    "@types/react": "^19.2.8",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
