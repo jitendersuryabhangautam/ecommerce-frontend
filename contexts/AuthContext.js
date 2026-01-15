@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useState, useContext, useEffect } from "react";
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import api from "@/services/api";
@@ -14,27 +20,34 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user");
     setUser(null);
     router.push("/login");
     toast.info("Logged out successfully");
-  };
+  }, [router]);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const storedUser = localStorage.getItem("user");
+    const initializeAuth = () => {
+      const token = localStorage.getItem("access_token");
+      const storedUser = localStorage.getItem("user");
 
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        logout();
+      if (token && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+        } catch (error) {
+          console.error("Failed to parse user data:", error);
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("user");
+        }
       }
-    }
-    setLoading(false);
-  }, []);
+      setLoading(false);
+    };
+
+    initializeAuth();
+  }, []); // Empty dependency array - runs only once on mount
 
   const fetchProfile = async () => {
     try {

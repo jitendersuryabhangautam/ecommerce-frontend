@@ -819,7 +819,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex items-center">
-                    <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <img
                         src={
                           item.product.image_url ||
