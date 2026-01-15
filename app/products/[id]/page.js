@@ -313,7 +313,7 @@ export default function ProductDetailPage() {
                   const Icon = feature.icon;
                   return (
                     <div key={index} className="flex items-center">
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         <Icon className="h-5 w-5 text-gray-400" />
                       </div>
                       <span className="ml-3 text-sm text-gray-600">

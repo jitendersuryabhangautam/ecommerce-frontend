@@ -71,7 +71,7 @@ export default function Footer() {
               const Icon = feature.icon;
               return (
                 <div key={feature.title} className="flex items-center">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <Icon className="h-8 w-8 text-blue-400" />
                   </div>
                   <div className="ml-4">

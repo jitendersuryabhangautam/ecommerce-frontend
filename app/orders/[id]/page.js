@@ -338,7 +338,7 @@ export default function OrderDetailPage() {
                       className="relative flex items-center mb-8"
                     >
                       <div
-                        className={`h-6 w-6 rounded-full border-2 z-10 flex-shrink-0 ${
+                        className={`h-6 w-6 rounded-full border-2 z-10 shrink-0 ${
                           isCompleted
                             ? "bg-blue-600 border-blue-600"
                             : "bg-white border-gray-300"
@@ -412,7 +412,7 @@ export default function OrderDetailPage() {
                     key={item.id}
                     className="flex flex-col sm:flex-row items-start sm:items-center border-b pb-6 last:border-0 last:pb-0 gap-4"
                   >
-                    <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <Image
                         src={getProductImage(item.product?.image_url)}
                         alt={item.product?.name}

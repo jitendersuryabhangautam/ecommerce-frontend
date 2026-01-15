@@ -104,7 +104,7 @@ export default function CartPage() {
                     {/* Product Info */}
                     <div className="col-span-6">
                       <div className="flex items-center">
-                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gray-200">
                           <Image
                             src={getProductImage(item.product.image_url)}
                             alt={item.product.name}

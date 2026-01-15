@@ -247,7 +247,7 @@ export default function ReturnDetailPage() {
             </h2>
             <div className="space-y-6">
               <div className="flex items-start">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                     <Calendar className="h-4 w-4 text-blue-600" />
                   </div>
@@ -265,7 +265,7 @@ export default function ReturnDetailPage() {
               {returnItem.updated_at &&
                 returnItem.updated_at !== returnItem.created_at && (
                   <div className="flex items-start">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
                         <Clock className="h-4 w-4 text-purple-600" />
                       </div>
@@ -284,7 +284,7 @@ export default function ReturnDetailPage() {
               {returnItem.status === "completed" &&
                 returnItem.refund_amount && (
                   <div className="flex items-start">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                         <CheckSquare className="h-4 w-4 text-green-600" />
                       </div>
@@ -371,7 +371,7 @@ export default function ReturnDetailPage() {
               {returnItem.status === "requested" && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start">
-                    <Clock className="h-5 w-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" />
+                    <Clock className="h-5 w-5 text-blue-600 mr-3 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-blue-800">Under Review</p>
                       <p className="text-sm text-blue-700 mt-1">
@@ -386,7 +386,7 @@ export default function ReturnDetailPage() {
               {returnItem.status === "approved" && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start">
-                    <Truck className="h-5 w-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
+                    <Truck className="h-5 w-5 text-green-600 mr-3 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-green-800">
                         Return Approved
@@ -403,7 +403,7 @@ export default function ReturnDetailPage() {
               {returnItem.status === "rejected" && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-start">
-                    <XCircle className="h-5 w-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-red-600 mr-3 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-red-800">
                         Return Rejected
@@ -420,7 +420,7 @@ export default function ReturnDetailPage() {
               {returnItem.status === "completed" && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-green-800">
                         Return Completed
