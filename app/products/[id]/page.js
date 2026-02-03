@@ -121,6 +121,7 @@ export default function ProductDetailPage() {
                     src={image}
                     alt={`${product.name} view ${index + 1}`}
                     fill
+                    unoptimized
                     className="object-cover"
                     sizes="120px"
                     quality={85}
@@ -134,6 +135,7 @@ export default function ProductDetailPage() {
                   src={images[selectedImage]}
                   alt={product.name}
                   fill
+                  unoptimized
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
                   quality={90}

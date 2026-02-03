@@ -80,6 +80,7 @@ export default function ProductGrid({
                     src={imageUrl}
                     alt={product.name}
                     fill
+                    unoptimized
                     className="object-cover"
                     sizes="112px"
                   />

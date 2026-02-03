@@ -17,6 +17,11 @@ const nextConfig = {
         hostname: "localhost",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn-www.konigelite.com",
+        pathname: "/**",
+      },
     ],
   },
 };
