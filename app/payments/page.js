@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { paymentService } from "@/services/api";
+import { paymentService } from "@/services/paymentService";
+import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   CreditCard,
@@ -34,22 +36,69 @@ export default function PaymentsPage() {
   const { user, isAuthenticated } = useAuth();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [viewLoadingId, setViewLoadingId] = useState(null);
+  const searchParams = useSearchParams();
+  const orderIdFilter = searchParams.get("order_id");
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchPayments();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, orderIdFilter]);
 
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const data = await paymentService.getUserPayments();
-      setPayments(data.payments || []);
+      if (orderIdFilter) {
+        const response = await paymentService.getPaymentByOrder(orderIdFilter);
+        const paymentData =
+          response?.data?.data ||
+          response?.data ||
+          response?.payment ||
+          response;
+        setPayments(paymentData ? [paymentData] : []);
+        return;
+      }
+
+      const response = await paymentService.getPaymentHistory();
+      const extracted =
+        response?.data?.payments ||
+        response?.payments ||
+        response?.data?.data?.payments ||
+        response?.data?.data ||
+        response?.data ||
+        [];
+      setPayments(Array.isArray(extracted) ? extracted : []);
     } catch (error) {
       console.error("Error fetching payments:", error);
+      toast.error("Failed to load payments");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewPayment = async (orderId) => {
+    if (!orderId) {
+      toast.error("Order ID not found for this payment");
+      return;
+    }
+    try {
+      setViewLoadingId(orderId);
+      const response = await paymentService.getPaymentByOrder(orderId);
+      const paymentData =
+        response?.data?.data ||
+        response?.data ||
+        response?.data?.data?.payment ||
+        response?.payment ||
+        response;
+      setSelectedPayment(paymentData);
+      console.log("Payment by order response:", response);
+    } catch (error) {
+      console.error("Error fetching payment by order:", error);
+      toast.error("Failed to load payment details");
+    } finally {
+      setViewLoadingId(null);
     }
   };
 
@@ -77,7 +126,7 @@ export default function PaymentsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-gray-900">
           <CreditCard className="text-blue-600" size={32} />
           Payment History
         </h1>
@@ -155,11 +204,14 @@ export default function PaymentsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <div className="flex items-center gap-2">
                         <button
+                          onClick={() => handleViewPayment(payment.order_id)}
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="View Details"
                         >
                           <Eye size={16} />
-                          View
+                          {viewLoadingId === payment.order_id
+                            ? "Loading..."
+                            : "View"}
                         </button>
                         {payment.status === "completed" && (
                           <button
@@ -191,6 +243,58 @@ export default function PaymentsPage() {
           )}
         </div>
       </div>
+
+      {selectedPayment && (
+        <div className="mt-6 bg-white rounded-lg shadow border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Payment Details
+            </h2>
+            <button
+              onClick={() => setSelectedPayment(null)}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Close
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-gray-500">Payment ID</p>
+              <p className="font-medium text-gray-900">{selectedPayment.id}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Order ID</p>
+              <p className="font-medium text-gray-900">
+                {selectedPayment.order_id}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">Status</p>
+              <p className="font-medium text-gray-900">
+                {selectedPayment.status}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">Payment Method</p>
+              <p className="font-medium text-gray-900">
+                {selectedPayment.payment_method}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">Amount</p>
+              <p className="font-medium text-gray-900">
+                {selectedPayment.amount}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">Created At</p>
+              <p className="font-medium text-gray-900">
+                {new Date(selectedPayment.created_at).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Payment Summary Card */}
       {payments.length > 0 && (

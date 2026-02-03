@@ -24,7 +24,9 @@ export default function CheckoutPage() {
     handleSubmit,
     formState: { errors },
     watch,
+    trigger,
   } = useForm({
+    shouldUnregister: false,
     defaultValues: {
       shipping_full_name: user?.first_name + " " + user?.last_name,
       shipping_street: "",
@@ -45,10 +47,39 @@ export default function CheckoutPage() {
   });
 
   const billingSameAsShipping = watch("billing_same_as_shipping");
+  const shippingCountry = watch("shipping_country");
+  const billingCountry = watch("billing_country");
+  const cardNumber = watch("card_number");
 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
+      if (!paymentMethod) {
+        toast.error("Please select a payment method");
+        return;
+      }
+      const orderPaymentMethodMap = {
+        credit_card: "cc",
+        debit_card: "dc",
+        cash_on_delivery: "cod",
+      };
+      const orderPaymentMethod = orderPaymentMethodMap[paymentMethod];
+      if (!orderPaymentMethod) {
+        toast.error("Please select a valid payment method");
+        return;
+      }
+      if (["credit_card", "debit_card"].includes(paymentMethod)) {
+        const cardValid = await trigger([
+          "card_number",
+          "card_expiry",
+          "card_cvv",
+          "card_holder_name",
+        ]);
+        if (!cardValid) {
+          toast.error("Please enter valid card details");
+          return;
+        }
+      }
       // Validate cart first
       const validation = await validateCart();
       if (!validation.valid) {
@@ -86,7 +117,9 @@ export default function CheckoutPage() {
               postal_code: data.billing_postal_code,
               phone: data.billing_phone,
             },
+        payment_method: orderPaymentMethod,
       };
+      console.log("Order creation payload:", orderData);
 
       // Create order
       const orderResponse = await orderService.createOrder(orderData);
@@ -114,12 +147,6 @@ export default function CheckoutPage() {
 
       console.log("Extracted order:", order);
 
-      // Create payment
-      const paymentResponse = await orderService.createPayment({
-        order_id: order.id,
-        payment_method: paymentMethod,
-      });
-
       toast.success("Order placed successfully!");
 
       // Clear cart
@@ -142,6 +169,59 @@ export default function CheckoutPage() {
 
   const handleNextStep = () => {
     if (step < 3) {
+      if (step === 1) {
+        const requiredFields = [
+          "shipping_full_name",
+          "shipping_street",
+          "shipping_city",
+          "shipping_state",
+          "shipping_country",
+          "shipping_postal_code",
+          "shipping_phone",
+        ];
+        if (!billingSameAsShipping) {
+          requiredFields.push(
+            "billing_full_name",
+            "billing_street",
+            "billing_city",
+            "billing_state",
+            "billing_country",
+            "billing_postal_code",
+            "billing_phone"
+          );
+        }
+        trigger(requiredFields).then((isValid) => {
+          if (!isValid) {
+            toast.error("Please complete the shipping address.");
+            return;
+          }
+          setStep(step + 1);
+        });
+        return;
+      }
+
+      if (step === 2) {
+        if (!paymentMethod) {
+          toast.error("Please select a payment method.");
+          return;
+        }
+        if (["credit_card", "debit_card"].includes(paymentMethod)) {
+          trigger([
+            "card_number",
+            "card_expiry",
+            "card_cvv",
+            "card_holder_name",
+          ]).then((isValid) => {
+            if (!isValid) {
+              toast.error("Please enter valid card details.");
+              return;
+            }
+            setStep(step + 1);
+          });
+          return;
+        }
+      }
+
       setStep(step + 1);
     }
   };
@@ -152,7 +232,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (!cart || cart.items.length === 0) {
+  if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) {
     return (
       <div className="text-center py-12">
         <h1 className="text-2xl font-bold text-gray-900">Your cart is empty</h1>
@@ -320,16 +400,24 @@ export default function CheckoutPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Postal Code *
                       </label>
-                      <input
-                        type="text"
-                        {...register("shipping_postal_code", {
-                          required: "Postal code is required",
-                        })}
-                        className="input-primary"
-                      />
-                      {errors.shipping_postal_code && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.shipping_postal_code.message}
+      <input
+        type="text"
+        inputMode="numeric"
+        {...register("shipping_postal_code", {
+          required: "Postal code is required",
+          validate: (value) => {
+            const trimmed = (value || "").trim();
+            if (shippingCountry === "India") {
+              return /^\d{6}$/.test(trimmed) || "Pincode must be 6 digits";
+            }
+            return trimmed.length > 0 || "Postal code is required";
+          },
+        })}
+        className="input-primary"
+      />
+      {errors.shipping_postal_code && (
+        <p className="mt-1 text-sm text-red-600">
+          {errors.shipping_postal_code.message}
                         </p>
                       )}
                     </div>
@@ -482,19 +570,28 @@ export default function CheckoutPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Postal Code *
                         </label>
-                        <input
-                          type="text"
-                          {...register("billing_postal_code", {
-                            required:
-                              !billingSameAsShipping &&
-                              "Postal code is required",
-                          })}
-                          className="input-primary"
-                          disabled={billingSameAsShipping}
-                        />
-                        {errors.billing_postal_code && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {errors.billing_postal_code.message}
+      <input
+        type="text"
+        inputMode="numeric"
+        {...register("billing_postal_code", {
+          required:
+            !billingSameAsShipping &&
+            "Postal code is required",
+          validate: (value) => {
+            if (billingSameAsShipping) return true;
+            const trimmed = (value || "").trim();
+            if (billingCountry === "India") {
+              return /^\d{6}$/.test(trimmed) || "Pincode must be 6 digits";
+            }
+            return trimmed.length > 0 || "Postal code is required";
+          },
+        })}
+        className="input-primary"
+        disabled={billingSameAsShipping}
+      />
+      {errors.billing_postal_code && (
+        <p className="mt-1 text-sm text-red-600">
+          {errors.billing_postal_code.message}
                           </p>
                         )}
                       </div>
@@ -562,7 +659,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Credit Card Form (for demo) */}
-                {paymentMethod === "credit_card" && (
+                {["credit_card", "debit_card"].includes(paymentMethod) && (
                   <div className="mt-8 p-6 border border-gray-300 rounded-lg">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
                       Card Details
@@ -575,8 +672,29 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="1234 5678 9012 3456"
+                          inputMode="numeric"
+                          {...register("card_number", {
+                            validate: (value) => {
+                              if (
+                                !["credit_card", "debit_card"].includes(
+                                  paymentMethod
+                                )
+                              )
+                                return true;
+                              const digits = (value || "").replace(/\s+/g, "");
+                              return (
+                                /^\d{12,19}$/.test(digits) ||
+                                "Enter a valid card number"
+                              );
+                            },
+                          })}
                           className="input-primary"
                         />
+                        {errors.card_number && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.card_number.message}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -585,8 +703,28 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="MM/YY"
+                          {...register("card_expiry", {
+                            validate: (value) => {
+                              if (
+                                !["credit_card", "debit_card"].includes(
+                                  paymentMethod
+                                )
+                              )
+                                return true;
+                              return (
+                                /^(0[1-9]|1[0-2])\/\d{2}$/.test(
+                                  (value || "").trim()
+                                ) || "Use MM/YY format"
+                              );
+                            },
+                          })}
                           className="input-primary"
                         />
+                        {errors.card_expiry && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.card_expiry.message}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -595,8 +733,28 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="123"
+                          inputMode="numeric"
+                          {...register("card_cvv", {
+                            validate: (value) => {
+                              if (
+                                !["credit_card", "debit_card"].includes(
+                                  paymentMethod
+                                )
+                              )
+                                return true;
+                              return (
+                                /^\d{3,4}$/.test((value || "").trim()) ||
+                                "Enter a valid CVV"
+                              );
+                            },
+                          })}
                           className="input-primary"
                         />
+                        {errors.card_cvv && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.card_cvv.message}
+                          </p>
+                        )}
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -605,8 +763,27 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="John Doe"
+                          {...register("card_holder_name", {
+                            validate: (value) => {
+                              if (
+                                !["credit_card", "debit_card"].includes(
+                                  paymentMethod
+                                )
+                              )
+                                return true;
+                              return (
+                                (value || "").trim().length >= 2 ||
+                                "Cardholder name is required"
+                              );
+                            },
+                          })}
                           className="input-primary"
                         />
+                        {errors.card_holder_name && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.card_holder_name.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -664,9 +841,13 @@ export default function CheckoutPage() {
                             )?.label
                           }
                         </p>
-                        {paymentMethod === "credit_card" && (
+                        {["credit_card", "debit_card"].includes(
+                          paymentMethod
+                        ) && (
                           <p className="text-gray-600">
-                            Card ending in •••• 3456
+                            Card ending in {"\u2022\u2022\u2022\u2022"}{" "}
+                            {(cardNumber || "").replace(/\s+/g, "").slice(-4) ||
+                              "----"}
                           </p>
                         )}
                       </div>
@@ -851,3 +1032,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

@@ -10,14 +10,18 @@ import {
   Truck,
   ChevronRight,
   Filter,
+  RefreshCw,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { orderService } from "@/services/orderService";
+import { returnService } from "@/services/returnService";
 import { formatCurrency, formatDate } from "@/utils/helpers";
 import {
   ORDER_STATUS,
   ORDER_STATUS_COLORS,
   ORDER_STATUS_LABELS,
+  RETURN_STATUS,
 } from "@/utils/constants";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -28,6 +32,7 @@ export default function OrdersPage() {
   const [filter, setFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [returnsByOrderId, setReturnsByOrderId] = useState({});
 
   console.log(
     "OrdersPage render - user:",
@@ -55,25 +60,57 @@ export default function OrdersPage() {
         params.status = filter;
       }
 
-      const response = await orderService.getOrders(params);
-      console.log("Orders API response:", response);
+      console.log("Orders fetch params:", params);
+      const [ordersResponse, returnsResponse] = await Promise.all([
+        orderService.getOrders(params),
+        returnService.getUserReturns(),
+      ]);
+      console.log("Orders API response:", ordersResponse);
+      console.log("Returns API response:", returnsResponse);
 
-      // Handle different response structures
-      let ordersData = [];
-      if (response.data?.orders) {
-        ordersData = response.data.orders;
-      } else if (response.orders) {
-        ordersData = response.orders;
-      } else if (Array.isArray(response.data)) {
-        ordersData = response.data;
-      } else if (Array.isArray(response)) {
-        ordersData = response;
-      }
+      const extractArray = (response, key) => {
+        if (response?.data?.[key]) return response.data[key];
+        if (response?.[key]) return response[key];
+        if (Array.isArray(response?.data)) return response.data;
+        if (Array.isArray(response)) return response;
+        if (Array.isArray(response?.data?.data)) return response.data.data;
+        return [];
+      };
+
+      const ordersData = extractArray(ordersResponse, "orders");
+      const returnsData = extractArray(returnsResponse, "returns");
+
+      const mappedReturns = returnsData.reduce((acc, returnItem) => {
+        const orderId =
+          returnItem.order_id || returnItem.order?.id || returnItem.orderId;
+        if (!orderId) return acc;
+
+        const current = acc[orderId];
+        if (!current) {
+          acc[orderId] = returnItem;
+          return acc;
+        }
+
+        const currentDate = new Date(
+          current.updated_at || current.created_at || 0
+        ).getTime();
+        const incomingDate = new Date(
+          returnItem.updated_at || returnItem.created_at || 0
+        ).getTime();
+        if (incomingDate >= currentDate) {
+          acc[orderId] = returnItem;
+        }
+        return acc;
+      }, {});
 
       console.log("Extracted orders:", ordersData);
+      console.log("Mapped returns by order:", mappedReturns);
       setOrders(ordersData);
+      setReturnsByOrderId(mappedReturns);
       setTotalPages(
-        response.data?.meta?.totalPages || response.meta?.totalPages || 1
+        ordersResponse.data?.meta?.totalPages ||
+          ordersResponse.meta?.totalPages ||
+          1
       );
     } catch (error) {
       console.error("Failed to fetch orders:", error);
@@ -82,6 +119,18 @@ export default function OrdersPage() {
       setLoading(false);
     }
   };
+
+  const visibleOrders = orders.filter((order) => {
+    if (filter === "all") return true;
+    if (filter === "return_requested") {
+      const returnItem = returnsByOrderId[order.id];
+      return (
+        order.status === "return_requested" ||
+        returnItem?.status === RETURN_STATUS.REQUESTED
+      );
+    }
+    return order.status === filter;
+  });
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -99,6 +148,37 @@ export default function OrdersPage() {
 
   const getStatusColor = (status) => {
     return ORDER_STATUS_COLORS[status] || "bg-gray-100 text-gray-800";
+  };
+
+  const getReturnBadge = (returnItem) => {
+    if (!returnItem) return null;
+
+    const status = returnItem.status || RETURN_STATUS.REQUESTED;
+    const returnStatusColors = {
+      [RETURN_STATUS.REQUESTED]: "bg-yellow-100 text-yellow-800",
+      [RETURN_STATUS.APPROVED]: "bg-blue-100 text-blue-800",
+      [RETURN_STATUS.REJECTED]: "bg-red-100 text-red-800",
+      [RETURN_STATUS.COMPLETED]: "bg-green-100 text-green-800",
+    };
+    const returnStatusLabels = {
+      [RETURN_STATUS.REQUESTED]: "Return Requested",
+      [RETURN_STATUS.APPROVED]: "Return Approved",
+      [RETURN_STATUS.REJECTED]: "Return Rejected",
+      [RETURN_STATUS.COMPLETED]: "Return Completed",
+    };
+    const ReturnIcon =
+      status === RETURN_STATUS.REJECTED ? AlertTriangle : RefreshCw;
+
+    return (
+      <div
+        className={`px-3 py-1 rounded-full flex items-center ${returnStatusColors[status]}`}
+      >
+        <ReturnIcon className="h-4 w-4 mr-2" />
+        <span className="text-sm font-medium">
+          {returnStatusLabels[status] || "Return Requested"}
+        </span>
+      </div>
+    );
   };
 
   if (!isAuthenticated) {
@@ -151,6 +231,7 @@ export default function OrdersPage() {
             "processing",
             "shipped",
             "delivered",
+            "return_requested",
             "cancelled",
           ].map((status) => (
             <button
@@ -173,7 +254,7 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {orders.length === 0 ? (
+      {visibleOrders.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm">
           <Package className="h-16 w-16 text-gray-400 mx-auto" />
           <h2 className="text-xl font-medium text-gray-900 mt-4">
@@ -193,8 +274,9 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => {
+          {visibleOrders.map((order) => {
             const StatusIcon = getStatusIcon(order.status);
+            const returnItem = returnsByOrderId[order.id];
             return (
               <Link
                 key={order.id}
@@ -214,6 +296,7 @@ export default function OrdersPage() {
                           {ORDER_STATUS_LABELS[order.status] || order.status}
                         </span>
                       </div>
+                      {getReturnBadge(returnItem)}
                       <span className="text-sm text-gray-500">
                         Order #{order.order_number?.replace("ORD-", "")}
                       </span>

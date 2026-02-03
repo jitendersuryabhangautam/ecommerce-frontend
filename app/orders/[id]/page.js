@@ -20,15 +20,18 @@ import {
   MapPin,
   Phone,
   Mail,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { orderService } from "@/services/orderService";
+import { returnService } from "@/services/returnService";
 import { formatCurrency, formatDate, getProductImage } from "@/utils/helpers";
 import {
   ORDER_STATUS,
   ORDER_STATUS_COLORS,
   ORDER_STATUS_LABELS,
   PAYMENT_STATUS,
+  RETURN_STATUS,
 } from "@/utils/constants";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Button from "@/components/ui/Button";
@@ -42,6 +45,7 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [canceling, setCanceling] = useState(false);
   const [returning, setReturning] = useState(false);
+  const [returnItem, setReturnItem] = useState(null);
 
   useEffect(() => {
     if (params.id && isAuthenticated) {
@@ -52,8 +56,36 @@ export default function OrderDetailPage() {
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      const response = await orderService.getOrder(params.id);
-      setOrder(response.data);
+      const [orderResponse, returnsResponse] = await Promise.all([
+        orderService.getOrder(params.id),
+        returnService.getUserReturns(),
+      ]);
+      console.log("Order detail API response:", orderResponse);
+      console.log("Order detail returns response:", returnsResponse);
+
+      const extractedOrder =
+        orderResponse?.data?.data ||
+        orderResponse?.data?.order ||
+        orderResponse?.data ||
+        orderResponse?.order ||
+        orderResponse;
+      setOrder(extractedOrder);
+
+      const extractArray = (response, key) => {
+        if (response?.data?.[key]) return response.data[key];
+        if (response?.[key]) return response[key];
+        if (Array.isArray(response?.data)) return response.data;
+        if (Array.isArray(response)) return response;
+        if (Array.isArray(response?.data?.data)) return response.data.data;
+        return [];
+      };
+
+      const returnsData = extractArray(returnsResponse, "returns");
+      const matchedReturn = returnsData.find((item) => {
+        const orderId = item.order_id || item.order?.id || item.orderId;
+        return orderId === params.id || orderId === extractedOrder?.id;
+      });
+      setReturnItem(matchedReturn || null);
     } catch (error) {
       console.error("Failed to fetch order:", error);
       toast.error("Failed to load order details");
@@ -158,6 +190,8 @@ export default function OrderDetailPage() {
       case ORDER_STATUS.COMPLETED:
       case ORDER_STATUS.DELIVERED:
         return CheckCircle;
+      case "return_requested":
+        return RefreshCw;
       case ORDER_STATUS.CANCELLED:
         return XCircle;
       case ORDER_STATUS.SHIPPED:
@@ -174,7 +208,7 @@ export default function OrderDetailPage() {
     (order?.status === ORDER_STATUS.DELIVERED ||
       order?.status === ORDER_STATUS.COMPLETED) &&
     // Check if return already exists
-    !order.return_requested;
+    !returnItem;
 
   if (!isAuthenticated) {
     return (
@@ -229,8 +263,28 @@ export default function OrderDetailPage() {
   }
 
   const StatusIcon = getStatusIcon(order.status);
+  const statusLabel =
+    order.status === "return_requested"
+      ? "Return Requested"
+      : ORDER_STATUS_LABELS[order.status] || order.status;
   const statusColorClass =
-    ORDER_STATUS_COLORS[order.status] || "bg-gray-100 text-gray-800";
+    ORDER_STATUS_COLORS[order.status] ||
+    (order.status === "return_requested"
+      ? "bg-yellow-100 text-yellow-800"
+      : "bg-gray-100 text-gray-800");
+  const returnStatusLabels = {
+    [RETURN_STATUS.REQUESTED]: "Return Requested",
+    [RETURN_STATUS.APPROVED]: "Return Approved",
+    [RETURN_STATUS.REJECTED]: "Return Rejected",
+    [RETURN_STATUS.COMPLETED]: "Return Completed",
+  };
+  const returnStatusColors = {
+    [RETURN_STATUS.REQUESTED]: "bg-yellow-100 text-yellow-800",
+    [RETURN_STATUS.APPROVED]: "bg-blue-100 text-blue-800",
+    [RETURN_STATUS.REJECTED]: "bg-red-100 text-red-800",
+    [RETURN_STATUS.COMPLETED]: "bg-green-100 text-green-800",
+  };
+  const returnStatus = returnItem?.status || RETURN_STATUS.REQUESTED;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -284,10 +338,21 @@ export default function OrderDetailPage() {
                     className={`${statusColorClass} px-4 py-2 rounded-full flex items-center`}
                   >
                     <StatusIcon className="h-5 w-5 mr-2" />
-                    <span className="font-medium">
-                      {ORDER_STATUS_LABELS[order.status] || order.status}
-                    </span>
+                    <span className="font-medium">{statusLabel}</span>
                   </div>
+                  {returnItem && (
+                    <div
+                      className={`ml-3 px-4 py-2 rounded-full flex items-center ${returnStatusColors[returnStatus]}`}
+                    >
+                      {(returnStatus === RETURN_STATUS.REJECTED && (
+                        <AlertTriangle className="h-5 w-5 mr-2" />
+                      )) || <RefreshCw className="h-5 w-5 mr-2" />}
+                      <span className="font-medium">
+                        {returnStatusLabels[returnStatus] ||
+                          "Return Requested"}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-gray-900">
@@ -300,67 +365,117 @@ export default function OrderDetailPage() {
               {/* Status Timeline */}
               <div className="relative">
                 <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-200 ml-3"></div>
-                {[
-                  {
-                    status: ORDER_STATUS.PENDING,
-                    label: "Order Placed",
-                    date: order.created_at,
-                  },
-                  {
-                    status: ORDER_STATUS.PROCESSING,
-                    label: "Processing",
-                    date: order.updated_at,
-                  },
-                  {
-                    status: ORDER_STATUS.SHIPPED,
-                    label: "Shipped",
-                    date: null,
-                  },
-                  {
-                    status: ORDER_STATUS.DELIVERED,
-                    label: "Delivered",
-                    date: null,
-                  },
-                ].map((step, index) => {
-                  const isCompleted =
-                    [
-                      ORDER_STATUS.PENDING,
-                      ORDER_STATUS.PROCESSING,
-                      ORDER_STATUS.SHIPPED,
-                      ORDER_STATUS.DELIVERED,
-                      ORDER_STATUS.COMPLETED,
-                    ].indexOf(order.status) >= index;
-                  const isCurrent = order.status === step.status;
+                {(() => {
+                  const steps = [
+                    {
+                      status: ORDER_STATUS.PENDING,
+                      label: "Order Placed",
+                      date: order.created_at,
+                      type: "order",
+                    },
+                    {
+                      status: ORDER_STATUS.PROCESSING,
+                      label: "Processing",
+                      date: order.updated_at,
+                      type: "order",
+                    },
+                    {
+                      status: ORDER_STATUS.SHIPPED,
+                      label: "Shipped",
+                      date: null,
+                      type: "order",
+                    },
+                    {
+                      status: ORDER_STATUS.DELIVERED,
+                      label: "Delivered",
+                      date: null,
+                      type: "order",
+                    },
+                  ];
 
-                  return (
-                    <div
-                      key={step.status}
-                      className="relative flex items-center mb-8"
-                    >
+                  if (order.status === ORDER_STATUS.CANCELLED) {
+                    steps.push({
+                      status: ORDER_STATUS.CANCELLED,
+                      label: "Cancelled",
+                      date: order.updated_at || order.created_at,
+                      type: "order",
+                    });
+                  }
+
+                  if (order.status === "return_requested") {
+                    steps.push({
+                      status: "return_requested",
+                      label: "Return Requested",
+                      date: order.updated_at || order.created_at,
+                      type: "return",
+                    });
+                  }
+
+                  if (returnItem) {
+                    steps.push({
+                      status: returnStatus,
+                      label:
+                        returnStatusLabels[returnStatus] ||
+                        "Return Requested",
+                      date: returnItem.created_at || returnItem.updated_at,
+                      type: "return",
+                    });
+                  }
+
+                  const normalizedStatus =
+                    order.status === "return_requested"
+                      ? ORDER_STATUS.DELIVERED
+                      : order.status === ORDER_STATUS.CANCELLED
+                      ? ORDER_STATUS.PENDING
+                      : order.status;
+                  const orderProgressIndex = [
+                    ORDER_STATUS.PENDING,
+                    ORDER_STATUS.PROCESSING,
+                    ORDER_STATUS.SHIPPED,
+                    ORDER_STATUS.DELIVERED,
+                    ORDER_STATUS.COMPLETED,
+                  ].indexOf(normalizedStatus);
+
+                  return steps.map((step, index) => {
+                    const isCompleted =
+                      step.type === "return"
+                        ? true
+                        : orderProgressIndex >= index;
+                    const isCurrent =
+                      step.type === "return"
+                        ? true
+                        : order.status === step.status;
+
+                    return (
                       <div
-                        className={`h-6 w-6 rounded-full border-2 z-10 shrink-0 ${
-                          isCompleted
-                            ? "bg-blue-600 border-blue-600"
-                            : "bg-white border-gray-300"
-                        } ${isCurrent ? "ring-4 ring-blue-100" : ""}`}
+                        key={`${step.type}-${step.status}`}
+                        className="relative flex items-center mb-8"
                       >
-                        {isCompleted && (
-                          <CheckCircle className="h-4 w-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                        )}
-                      </div>
-                      <div className="ml-4">
-                        <p className="font-medium text-gray-900">
-                          {step.label}
-                        </p>
-                        {step.date && (
-                          <p className="text-sm text-gray-500">
-                            {formatDate(step.date)}
+                        <div
+                          className={`h-6 w-6 rounded-full border-2 z-10 shrink-0 ${
+                            isCompleted
+                              ? "bg-blue-600 border-blue-600"
+                              : "bg-white border-gray-300"
+                          } ${isCurrent ? "ring-4 ring-blue-100" : ""}`}
+                        >
+                          {isCompleted && (
+                            <CheckCircle className="h-4 w-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                          )}
+                        </div>
+                        <div className="ml-4">
+                          <p className="font-medium text-gray-900">
+                            {step.label}
                           </p>
-                        )}
+                          {step.date && (
+                            <p className="text-sm text-gray-500">
+                              {formatDate(step.date)}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
 
               {/* Action Buttons */}

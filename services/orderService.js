@@ -9,8 +9,15 @@ export const orderService = {
 
   // Get user orders
   getOrders: async (params = {}) => {
-    const { page = 1, limit = 10 } = params;
-    const response = await api.get(`/orders?page=${page}&limit=${limit}`);
+    const { page = 1, limit = 10, status } = params;
+    const query = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    if (status) {
+      query.set("status", status);
+    }
+    const response = await api.get(`/orders?${query.toString()}`);
     return response.data;
   },
 

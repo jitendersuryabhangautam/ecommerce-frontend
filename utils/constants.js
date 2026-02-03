@@ -20,6 +20,7 @@ export const ORDER_STATUS_COLORS = {
   [ORDER_STATUS.COMPLETED]: "bg-green-100 text-green-800",
   [ORDER_STATUS.CANCELLED]: "bg-red-100 text-red-800",
   [ORDER_STATUS.REFUNDED]: "bg-gray-100 text-gray-800",
+  return_requested: "bg-yellow-100 text-yellow-800",
 };
 
 export const ORDER_STATUS_LABELS = {
@@ -30,6 +31,7 @@ export const ORDER_STATUS_LABELS = {
   [ORDER_STATUS.COMPLETED]: "Completed",
   [ORDER_STATUS.CANCELLED]: "Cancelled",
   [ORDER_STATUS.REFUNDED]: "Refunded",
+  return_requested: "Return Requested",
 };
 
 export const PAYMENT_STATUS = {
