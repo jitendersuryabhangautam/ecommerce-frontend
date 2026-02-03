@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
@@ -12,7 +12,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { formatCurrency } from "@/utils/helpers";
 
-export default function CreateReturnPage() {
+function CreateReturnPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuth();
@@ -327,6 +327,20 @@ export default function CreateReturnPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateReturnPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+          <LoadingSpinner size="large" />
+        </div>
+      }
+    >
+      <CreateReturnPageContent />
+    </Suspense>
   );
 }
 

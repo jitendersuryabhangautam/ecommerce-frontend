@@ -71,12 +71,15 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/10" />
         <div className="relative px-8 py-16 sm:py-24 lg:py-32">
           <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white/80 mb-6">
-              Welcome to <span className="text-brand">ShopCart</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white/70 mb-6">
+              Welcome to{" "}
+              <span className="text-[#ff2f60] drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)]">
+                ShopCart
+              </span>
             </h1>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto mb-8">
+            <p className="text-xl text-white/65 max-w-3xl mx-auto mb-8">
               Discover amazing products at unbeatable prices. Shop the latest
-              trends with free shipping On orders over ₹499.
+              trends with free shipping on orders over ₹499.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
