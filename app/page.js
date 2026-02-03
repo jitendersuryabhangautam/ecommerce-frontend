@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export default function HomePage() {
     {
       icon: Truck,
       title: "Free Shipping",
-      description: "On orders over ?499",
+      description: "On orders over ₹499",
     },
     {
       icon: Shield,
@@ -76,7 +76,7 @@ export default function HomePage() {
             </h1>
             <p className="text-xl text-white/80 max-w-3xl mx-auto mb-8">
               Discover amazing products at unbeatable prices. Shop the latest
-              trends with free shipping on orders over ?499.
+              trends with free shipping On orders over ₹499.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
