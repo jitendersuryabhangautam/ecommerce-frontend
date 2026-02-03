@@ -149,10 +149,10 @@ export default function ProfilePage() {
             <div className="px-6 py-4">
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center">
-                    <User className="h-10 w-10 text-blue-600" />
+                  <div className="h-20 w-20 rounded-full bg-brand-soft flex items-center justify-center">
+                    <User className="h-10 w-10 text-brand" />
                   </div>
-                  <button className="absolute bottom-0 right-0 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-700">
+                  <button className="absolute bottom-0 right-0 bg-brand text-white p-1 rounded-full hover:bg-[#e11e5a]">
                     <Camera className="h-4 w-4" />
                   </button>
                 </div>
@@ -177,7 +177,7 @@ export default function ProfilePage() {
                 onClick={() => setActiveTab("profile")}
                 className={`px-6 py-3 text-sm font-medium border-b-2 ${
                   activeTab === "profile"
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-brand text-brand"
                     : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -187,7 +187,7 @@ export default function ProfilePage() {
                 onClick={() => setActiveTab("password")}
                 className={`px-6 py-3 text-sm font-medium border-b-2 ${
                   activeTab === "password"
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-brand text-brand"
                     : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -197,7 +197,7 @@ export default function ProfilePage() {
                 onClick={() => setActiveTab("orders")}
                 className={`px-6 py-3 text-sm font-medium border-b-2 ${
                   activeTab === "orders"
-                    ? "border-blue-600 text-blue-600"
+                    ? "border-brand text-brand"
                     : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
               >
@@ -397,7 +397,7 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>
@@ -527,21 +527,21 @@ export default function ProfilePage() {
                     )}
                   </div>
 
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-blue-900 mb-2">
+                  <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-[rgb(var(--brand-primary-dark))] mb-2">
                       Password Requirements
                     </h4>
-                    <ul className="text-sm text-blue-800 space-y-1">
+                    <ul className="text-sm text-[rgb(var(--brand-primary-dark))] space-y-1">
                       <li className="flex items-center">
-                        <div className="h-2 w-2 bg-blue-600 rounded-full mr-2"></div>
+                        <div className="h-2 w-2 bg-brand rounded-full mr-2"></div>
                         At least 6 characters long
                       </li>
                       <li className="flex items-center">
-                        <div className="h-2 w-2 bg-blue-600 rounded-full mr-2"></div>
+                        <div className="h-2 w-2 bg-brand rounded-full mr-2"></div>
                         Contains letters and numbers
                       </li>
                       <li className="flex items-center">
-                        <div className="h-2 w-2 bg-blue-600 rounded-full mr-2"></div>
+                        <div className="h-2 w-2 bg-brand rounded-full mr-2"></div>
                         Different from your previous password
                       </li>
                     </ul>
@@ -551,7 +551,7 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>
@@ -580,7 +580,7 @@ export default function ProfilePage() {
                   information, please visit the{" "}
                   <a
                     href="/orders"
-                    className="text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-brand hover:text-[rgb(var(--brand-primary-dark))] font-medium"
                   >
                     Orders page
                   </a>
@@ -588,9 +588,9 @@ export default function ProfilePage() {
                 </p>
 
                 <div className="bg-gray-50 rounded-lg p-8 text-center">
-                  <div className="inline-flex p-3 bg-blue-100 rounded-lg mb-4">
+                  <div className="inline-flex p-3 bg-brand-soft rounded-lg mb-4">
                     <svg
-                      className="h-8 w-8 text-blue-600"
+                      className="h-8 w-8 text-brand"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -612,7 +612,7 @@ export default function ProfilePage() {
                   </p>
                   <a
                     href="/orders"
-                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="inline-flex items-center px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a]"
                   >
                     Go to Orders
                     <svg
@@ -638,3 +638,6 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+
+

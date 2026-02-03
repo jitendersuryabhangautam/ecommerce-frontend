@@ -25,6 +25,7 @@ export default function CheckoutPage() {
     formState: { errors },
     watch,
     trigger,
+    setValue,
   } = useForm({
     shouldUnregister: false,
     defaultValues: {
@@ -119,11 +120,11 @@ export default function CheckoutPage() {
             },
         payment_method: orderPaymentMethod,
       };
-      console.log("Order creation payload:", orderData);
+      // console.log("Order creation payload:", orderData);
 
       // Create order
       const orderResponse = await orderService.createOrder(orderData);
-      console.log("Full order response:", orderResponse);
+      // console.log("Full order response:", orderResponse);
 
       // Handle different response structures
       let order;
@@ -145,7 +146,7 @@ export default function CheckoutPage() {
         throw new Error("Order created but unable to retrieve order details");
       }
 
-      console.log("Extracted order:", order);
+      // console.log("Extracted order:", order);
 
       toast.success("Order placed successfully!");
 
@@ -226,6 +227,17 @@ export default function CheckoutPage() {
     }
   };
 
+  const formatExpiry = (value) => {
+    const digits = (value || "").replace(/\D/g, "").slice(0, 4);
+    if (digits.length <= 2) return digits;
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  };
+
+  const formatCardNumber = (value) => {
+    const digits = (value || "").replace(/\D/g, "").slice(0, 16);
+    return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+  };
+
   const handlePrevStep = () => {
     if (step > 1) {
       setStep(step - 1);
@@ -239,7 +251,7 @@ export default function CheckoutPage() {
         <p className="text-gray-600 mt-2">Add some products to checkout</p>
         <button
           onClick={() => router.push("/products")}
-          className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a]"
         >
           Continue Shopping
         </button>
@@ -247,8 +259,8 @@ export default function CheckoutPage() {
     );
   }
 
-  const shippingCost = cartTotal > 50 ? 0 : 5;
-  const tax = cartTotal * 0.08;
+  const shippingCost = cartTotal > 499 ? 0 : 50;
+  const tax = cartTotal * 0.18;
   const total = cartTotal + shippingCost + tax;
 
   return (
@@ -263,7 +275,7 @@ export default function CheckoutPage() {
                   <div
                     className={`h-10 w-10 rounded-full flex items-center justify-center ${
                       index + 1 <= step
-                        ? "bg-blue-600 text-white"
+                        ? "bg-brand text-white"
                         : "bg-gray-200 text-gray-600"
                     }`}
                   >
@@ -271,7 +283,7 @@ export default function CheckoutPage() {
                   </div>
                   <span
                     className={`mt-2 text-sm font-medium ${
-                      index + 1 <= step ? "text-blue-600" : "text-gray-600"
+                      index + 1 <= step ? "text-brand" : "text-gray-600"
                     }`}
                   >
                     {label}
@@ -280,7 +292,7 @@ export default function CheckoutPage() {
                 {index < 2 && (
                   <div
                     className={`h-1 w-24 mx-4 ${
-                      index + 1 < step ? "bg-blue-600" : "bg-gray-200"
+                      index + 1 < step ? "bg-brand" : "bg-gray-200"
                     }`}
                   />
                 )}
@@ -299,7 +311,7 @@ export default function CheckoutPage() {
                 {/* Shipping Address */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <div className="flex items-center mb-6">
-                    <Truck className="h-6 w-6 text-blue-600 mr-3" />
+                    <Truck className="h-6 w-6 text-brand mr-3" />
                     <h2 className="text-xl font-bold text-gray-900">
                       Shipping Address
                     </h2>
@@ -400,24 +412,29 @@ export default function CheckoutPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Postal Code *
                       </label>
-      <input
-        type="text"
-        inputMode="numeric"
-        {...register("shipping_postal_code", {
-          required: "Postal code is required",
-          validate: (value) => {
-            const trimmed = (value || "").trim();
-            if (shippingCountry === "India") {
-              return /^\d{6}$/.test(trimmed) || "Pincode must be 6 digits";
-            }
-            return trimmed.length > 0 || "Postal code is required";
-          },
-        })}
-        className="input-primary"
-      />
-      {errors.shipping_postal_code && (
-        <p className="mt-1 text-sm text-red-600">
-          {errors.shipping_postal_code.message}
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        {...register("shipping_postal_code", {
+                          required: "Postal code is required",
+                          validate: (value) => {
+                            const trimmed = (value || "").trim();
+                            if (shippingCountry === "India") {
+                              return (
+                                /^\d{6}$/.test(trimmed) ||
+                                "Pincode must be 6 digits"
+                              );
+                            }
+                            return (
+                              trimmed.length > 0 || "Postal code is required"
+                            );
+                          },
+                        })}
+                        className="input-primary"
+                      />
+                      {errors.shipping_postal_code && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.shipping_postal_code.message}
                         </p>
                       )}
                     </div>
@@ -446,7 +463,7 @@ export default function CheckoutPage() {
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
-                      <CreditCard className="h-6 w-6 text-blue-600 mr-3" />
+                      <CreditCard className="h-6 w-6 text-brand mr-3" />
                       <h2 className="text-xl font-bold text-gray-900">
                         Billing Address
                       </h2>
@@ -455,7 +472,7 @@ export default function CheckoutPage() {
                       <input
                         type="checkbox"
                         {...register("billing_same_as_shipping")}
-                        className="h-4 w-4 text-blue-600 rounded"
+                        className="h-4 w-4 text-brand rounded"
                       />
                       <span className="ml-2 text-sm text-gray-700">
                         Same as shipping address
@@ -570,28 +587,33 @@ export default function CheckoutPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Postal Code *
                         </label>
-      <input
-        type="text"
-        inputMode="numeric"
-        {...register("billing_postal_code", {
-          required:
-            !billingSameAsShipping &&
-            "Postal code is required",
-          validate: (value) => {
-            if (billingSameAsShipping) return true;
-            const trimmed = (value || "").trim();
-            if (billingCountry === "India") {
-              return /^\d{6}$/.test(trimmed) || "Pincode must be 6 digits";
-            }
-            return trimmed.length > 0 || "Postal code is required";
-          },
-        })}
-        className="input-primary"
-        disabled={billingSameAsShipping}
-      />
-      {errors.billing_postal_code && (
-        <p className="mt-1 text-sm text-red-600">
-          {errors.billing_postal_code.message}
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          {...register("billing_postal_code", {
+                            required:
+                              !billingSameAsShipping &&
+                              "Postal code is required",
+                            validate: (value) => {
+                              if (billingSameAsShipping) return true;
+                              const trimmed = (value || "").trim();
+                              if (billingCountry === "India") {
+                                return (
+                                  /^\d{6}$/.test(trimmed) ||
+                                  "Pincode must be 6 digits"
+                                );
+                              }
+                              return (
+                                trimmed.length > 0 || "Postal code is required"
+                              );
+                            },
+                          })}
+                          className="input-primary"
+                          disabled={billingSameAsShipping}
+                        />
+                        {errors.billing_postal_code && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.billing_postal_code.message}
                           </p>
                         )}
                       </div>
@@ -625,7 +647,7 @@ export default function CheckoutPage() {
             {step === 2 && (
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center mb-6">
-                  <CreditCard className="h-6 w-6 text-blue-600 mr-3" />
+                  <CreditCard className="h-6 w-6 text-brand mr-3" />
                   <h2 className="text-xl font-bold text-gray-900">
                     Payment Method
                   </h2>
@@ -637,7 +659,7 @@ export default function CheckoutPage() {
                       key={method.value}
                       className={`flex items-center p-4 border rounded-lg cursor-pointer ${
                         paymentMethod === method.value
-                          ? "border-blue-600 bg-blue-50"
+                          ? "border-brand bg-brand-soft"
                           : "border-gray-300 hover:border-gray-400"
                       }`}
                     >
@@ -647,7 +669,7 @@ export default function CheckoutPage() {
                         value={method.value}
                         checked={paymentMethod === method.value}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="h-4 w-4 text-blue-600"
+                        className="h-4 w-4 text-brand"
                       />
                       <div className="ml-3">
                         <span className="font-medium text-gray-900">
@@ -687,6 +709,12 @@ export default function CheckoutPage() {
                                 "Enter a valid card number"
                               );
                             },
+                            onChange: (e) => {
+                              const formatted = formatCardNumber(e.target.value);
+                              setValue("card_number", formatted, {
+                                shouldValidate: true,
+                              });
+                            },
                           })}
                           className="input-primary"
                         />
@@ -716,6 +744,12 @@ export default function CheckoutPage() {
                                   (value || "").trim()
                                 ) || "Use MM/YY format"
                               );
+                            },
+                            onChange: (e) => {
+                              const formatted = formatExpiry(e.target.value);
+                              setValue("card_expiry", formatted, {
+                                shouldValidate: true,
+                              });
                             },
                           })}
                           className="input-primary"
@@ -796,7 +830,7 @@ export default function CheckoutPage() {
                 {/* Order Review */}
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <div className="flex items-center mb-6">
-                    <Shield className="h-6 w-6 text-blue-600 mr-3" />
+                    <Shield className="h-6 w-6 text-brand mr-3" />
                     <h2 className="text-xl font-bold text-gray-900">
                       Order Review
                     </h2>
@@ -888,20 +922,20 @@ export default function CheckoutPage() {
                     <input
                       type="checkbox"
                       required
-                      className="h-4 w-4 text-blue-600 rounded mt-1"
+                      className="h-4 w-4 text-brand rounded mt-1"
                     />
                     <span className="ml-3 text-sm text-gray-700">
                       I agree to the{" "}
                       <a
                         href="/terms"
-                        className="text-blue-600 hover:text-blue-700"
+                        className="text-brand hover:text-[rgb(var(--brand-primary-dark))]"
                       >
                         Terms and Conditions
                       </a>{" "}
                       and{" "}
                       <a
                         href="/privacy"
-                        className="text-blue-600 hover:text-blue-700"
+                        className="text-brand hover:text-[rgb(var(--brand-primary-dark))]"
                       >
                         Privacy Policy
                       </a>
@@ -929,7 +963,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={handleNextStep}
-                  className="ml-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="ml-auto px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a]"
                 >
                   Continue to {step === 1 ? "Payment" : "Review"}
                 </button>
@@ -979,7 +1013,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
+                <span className="text-gray-600">GST (18%)</span>
                 <span className="font-medium">{formatCurrency(tax)}</span>
               </div>
 
@@ -988,7 +1022,7 @@ export default function CheckoutPage() {
                   <span>Total</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Including VAT</p>
+                <p className="text-sm text-gray-500 mt-1">Including GST</p>
               </div>
             </div>
 
@@ -1032,4 +1066,5 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
 

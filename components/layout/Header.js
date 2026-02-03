@@ -43,7 +43,7 @@ export default function Header({ onMenuClick }) {
   ];
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left side - Logo and Navigation */}
@@ -56,23 +56,25 @@ export default function Header({ onMenuClick }) {
             </button>
 
             <Link href="/" className="flex items-center ml-2 lg:ml-0">
-              <Package className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">
+              <div className="h-9 w-9 rounded-xl bg-brand flex items-center justify-center shadow-sm">
+                <Package className="h-5 w-5 text-white" />
+              </div>
+              <span className="ml-2 text-lg font-bold tracking-tight text-gray-900">
                 ShopCart
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:ml-8 lg:flex lg:space-x-4">
+            <nav className="hidden lg:ml-8 lg:flex lg:space-x-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                    className={`flex items-center px-3 py-2 rounded-full text-xs font-semibold uppercase tracking-wider ${
                       pathname === item.href
-                        ? "bg-blue-100 text-blue-700"
+                        ? "bg-brand-soft text-brand"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -92,7 +94,7 @@ export default function Header({ onMenuClick }) {
                 <input
                   type="search"
                   placeholder="Search products..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.25)] focus:border-transparent"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -114,11 +116,11 @@ export default function Header({ onMenuClick }) {
             {/* Cart */}
             <Link
               href="/cart"
-              className="relative p-2 text-gray-700 hover:text-blue-600"
+              className="relative p-2 text-gray-700 hover:text-brand"
             >
               <ShoppingCart className="h-6 w-6" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-brand text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}
@@ -131,8 +133,8 @@ export default function Header({ onMenuClick }) {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
                 >
-                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <User className="h-5 w-5 text-blue-600" />
+                  <div className="h-8 w-8 rounded-full bg-brand-soft flex items-center justify-center">
+                    <User className="h-5 w-5 text-brand" />
                   </div>
                   <span className="hidden md:inline text-sm font-medium">
                     {user?.first_name}
@@ -189,13 +191,13 @@ export default function Header({ onMenuClick }) {
               <div className="flex space-x-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-brand"
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2 text-sm font-medium text-white rounded-full bg-gradient-to-r from-[#ff3f6c] to-[#ff7a59] hover:from-[#ff2f60] hover:to-[#ff6d4e] shadow-md"
                 >
                   Sign Up
                 </Link>
@@ -207,3 +209,4 @@ export default function Header({ onMenuClick }) {
     </header>
   );
 }
+

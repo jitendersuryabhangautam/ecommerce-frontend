@@ -14,7 +14,7 @@ export const ORDER_STATUS = {
 
 export const ORDER_STATUS_COLORS = {
   [ORDER_STATUS.PENDING]: "bg-yellow-100 text-yellow-800",
-  [ORDER_STATUS.PROCESSING]: "bg-blue-100 text-blue-800",
+  [ORDER_STATUS.PROCESSING]: "bg-emerald-100 text-emerald-800",
   [ORDER_STATUS.SHIPPED]: "bg-purple-100 text-purple-800",
   [ORDER_STATUS.DELIVERED]: "bg-green-100 text-green-800",
   [ORDER_STATUS.COMPLETED]: "bg-green-100 text-green-800",
@@ -99,3 +99,4 @@ export const COUNTRIES = [
   "Chile",
   "Other",
 ];
+

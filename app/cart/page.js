@@ -46,7 +46,7 @@ export default function CartPage() {
         <p className="text-gray-600 mt-2">Please login to view your cart</p>
         <Link
           href="/login"
-          className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a]"
         >
           Login to Continue
         </Link>
@@ -72,7 +72,7 @@ export default function CartPage() {
         <p className="text-gray-600 mt-2">Add some products to get started</p>
         <Link
           href="/products"
-          className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a]"
         >
           Continue Shopping
         </Link>
@@ -116,7 +116,7 @@ export default function CartPage() {
                         <div className="ml-4">
                           <Link
                             href={`/products/${item.product.id}`}
-                            className="font-medium text-gray-900 hover:text-blue-600"
+                            className="font-medium text-gray-900 hover:text-brand"
                           >
                             {item.product.name}
                           </Link>
@@ -158,7 +158,7 @@ export default function CartPage() {
                           </button>
                           <span className="px-3 py-1 border-x border-gray-300 min-w-[40px] text-center">
                             {updatingItem === item.id ? (
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mx-auto" />
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand border-t-transparent mx-auto" />
                             ) : (
                               item.quantity
                             )}
@@ -207,7 +207,7 @@ export default function CartPage() {
             <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
               <Link
                 href="/products"
-                className="flex items-center text-blue-600 hover:text-blue-700"
+                className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))]"
               >
                 <ArrowRight className="h-4 w-4 rotate-180 mr-2" />
                 Continue Shopping
@@ -265,7 +265,7 @@ export default function CartPage() {
             <div className="mt-8 space-y-3">
               <Link
                 href="/checkout"
-                className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-3 px-4 rounded-lg font-medium"
+                className="block w-full bg-brand hover:bg-[#e11e5a] text-white text-center py-3 px-4 rounded-lg font-medium"
               >
                 Proceed to Checkout
               </Link>
@@ -287,7 +287,7 @@ export default function CartPage() {
                 <input
                   type="text"
                   placeholder="Enter code"
-                  className="flex-1 border border-r-0 border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 border border-r-0 border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent"
                 />
                 <button className="bg-gray-800 text-white px-4 py-2 rounded-r-lg hover:bg-gray-900">
                   Apply
@@ -300,3 +300,5 @@ export default function CartPage() {
     </div>
   );
 }
+
+

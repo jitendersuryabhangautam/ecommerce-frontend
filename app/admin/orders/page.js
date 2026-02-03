@@ -19,7 +19,7 @@ import {
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
-  processing: "bg-blue-100 text-blue-800",
+  processing: "bg-brand-soft text-[rgb(var(--brand-primary-dark))]",
   shipped: "bg-purple-100 text-purple-800",
   delivered: "bg-green-100 text-green-800",
   completed: "bg-green-100 text-green-800",
@@ -139,7 +139,7 @@ export default function AdminOrdersPage() {
       )}
 
       <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
-        <Package className="text-blue-600" size={32} />
+        <Package className="text-brand" size={32} />
         Order Management
       </h1>
 
@@ -207,7 +207,7 @@ export default function AdminOrdersPage() {
                         onClick={() =>
                           handleStatusChange(order.id, order.status)
                         }
-                        className="inline-flex items-center gap-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 border border-brand text-brand rounded-lg hover:bg-brand-soft transition-colors"
                       >
                         <Edit size={16} />
                         Change Status
@@ -242,7 +242,7 @@ export default function AdminOrdersPage() {
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent"
               >
                 <option value="pending">Pending</option>
                 <option value="processing">Processing</option>
@@ -252,12 +252,12 @@ export default function AdminOrdersPage() {
                 <option value="cancelled">Cancelled</option>
                 <option value="refunded">Refunded</option>
               </select>
-              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+              <div className="mt-4 bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4 flex items-start gap-3">
                 <AlertCircle
-                  className="text-blue-600 mt-0.5 shrink-0"
+                  className="text-brand mt-0.5 shrink-0"
                   size={20}
                 />
-                <p className="text-sm text-blue-800">
+                <p className="text-sm text-[rgb(var(--brand-primary-dark))]">
                   Changing the order status will notify the customer via email.
                 </p>
               </div>
@@ -277,7 +277,7 @@ export default function AdminOrdersPage() {
               </button>
               <button
                 onClick={updateOrderStatus}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-[#e11e5a] transition-colors flex items-center gap-2"
               >
                 <CheckCircle size={16} />
                 Update Status
@@ -289,3 +289,6 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
+
+
+

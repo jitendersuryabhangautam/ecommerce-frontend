@@ -103,7 +103,7 @@ export default function ContactPage() {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))]"
                       placeholder="John Doe"
                       required
                     />
@@ -117,7 +117,7 @@ export default function ContactPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))]"
                       placeholder="john@example.com"
                       required
                     />
@@ -133,15 +133,15 @@ export default function ContactPage() {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))]"
                     placeholder="How can we help?"
                     required
                   />
                 </div>
 
                 {formData.orderId && (
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-700">
+                  <div className="p-4 bg-brand-soft rounded-lg">
+                    <p className="text-sm text-[rgb(var(--brand-primary-dark))]">
                       This message is related to Order #{formData.orderId}
                     </p>
                   </div>
@@ -156,7 +156,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleChange}
                     rows={6}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))]"
                     placeholder="Please describe your issue in detail..."
                     required
                   />
@@ -166,7 +166,7 @@ export default function ContactPage() {
                   <input
                     type="checkbox"
                     id="updates"
-                    className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="h-4 w-4 text-brand rounded focus:ring-[rgba(255,63,108,0.6)]"
                   />
                   <label
                     htmlFor="updates"
@@ -196,16 +196,16 @@ export default function ContactPage() {
               </h3>
 
               <div className="space-y-4">
-                <div className="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                  <Phone className="h-5 w-5 text-blue-600 mr-3" />
+                <div className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors">
+                  <Phone className="h-5 w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Phone Support</p>
                     <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
                   </div>
                 </div>
 
-                <div className="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                  <Mail className="h-5 w-5 text-blue-600 mr-3" />
+                <div className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors">
+                  <Mail className="h-5 w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Email Support</p>
                     <p className="text-sm text-gray-600">
@@ -214,8 +214,8 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                  <MessageCircle className="h-5 w-5 text-blue-600 mr-3" />
+                <div className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors">
+                  <MessageCircle className="h-5 w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Live Chat</p>
                     <p className="text-sm text-gray-600">Click the chat icon</p>
@@ -227,7 +227,7 @@ export default function ContactPage() {
             {/* Business Hours */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <Clock className="h-5 w-5 text-blue-600 mr-3" />
+                <Clock className="h-5 w-5 text-brand mr-3" />
                 <h3 className="text-lg font-bold text-gray-900">
                   Business Hours
                 </h3>
@@ -252,32 +252,32 @@ export default function ContactPage() {
             {/* FAQ Quick Links */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <CheckCircle className="h-5 w-5 text-blue-600 mr-3" />
+                <CheckCircle className="h-5 w-5 text-brand mr-3" />
                 <h3 className="text-lg font-bold text-gray-900">Quick Help</h3>
               </div>
 
               <div className="space-y-3">
                 <button
                   onClick={() => router.push("/faq?category=orders")}
-                  className="block w-full text-left text-blue-600 hover:text-blue-700 transition-colors"
+                  className="block w-full text-left text-brand hover:text-[rgb(var(--brand-primary-dark))] transition-colors"
                 >
                   Order Status & Tracking
                 </button>
                 <button
                   onClick={() => router.push("/faq?category=returns")}
-                  className="block w-full text-left text-blue-600 hover:text-blue-700 transition-colors"
+                  className="block w-full text-left text-brand hover:text-[rgb(var(--brand-primary-dark))] transition-colors"
                 >
                   Returns & Refunds
                 </button>
                 <button
                   onClick={() => router.push("/faq?category=shipping")}
-                  className="block w-full text-left text-blue-600 hover:text-blue-700 transition-colors"
+                  className="block w-full text-left text-brand hover:text-[rgb(var(--brand-primary-dark))] transition-colors"
                 >
                   Shipping & Delivery
                 </button>
                 <button
                   onClick={() => router.push("/faq?category=payments")}
-                  className="block w-full text-left text-blue-600 hover:text-blue-700 transition-colors"
+                  className="block w-full text-left text-brand hover:text-[rgb(var(--brand-primary-dark))] transition-colors"
                 >
                   Payment Issues
                 </button>
@@ -300,10 +300,10 @@ export default function ContactPage() {
         </div>
 
         {/* Support Guarantee */}
-        <div className="mt-12 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-8 text-white">
+        <div className="mt-12 bg-gradient-to-r from-[#ff3f6c] to-[#ff7a59] rounded-lg p-8 text-white">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">24/7 Support Guarantee</h2>
-            <p className="text-blue-100 max-w-2xl mx-auto">
+            <p className="text-white/80 max-w-2xl mx-auto">
               We're committed to providing you with the best support experience.
               Our team is available around the clock to ensure your issues are
               resolved promptly and efficiently.
@@ -311,15 +311,15 @@ export default function ContactPage() {
             <div className="mt-6 flex flex-wrap justify-center gap-4">
               <div className="text-center">
                 <div className="text-3xl font-bold">24/7</div>
-                <div className="text-sm text-blue-200">Live Chat</div>
+                <div className="text-sm text-white/70">Live Chat</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold">2h</div>
-                <div className="text-sm text-blue-200">Response Time</div>
+                <div className="text-sm text-white/70">Response Time</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold">98%</div>
-                <div className="text-sm text-blue-200">Satisfaction Rate</div>
+                <div className="text-sm text-white/70">Satisfaction Rate</div>
               </div>
             </div>
           </div>
@@ -328,3 +328,5 @@ export default function ContactPage() {
     </div>
   );
 }
+
+

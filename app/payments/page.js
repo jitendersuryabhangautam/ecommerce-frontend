@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { paymentService } from "@/services/paymentService";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { formatCurrency } from "@/utils/helpers";
 import {
   CreditCard,
   Calendar,
@@ -93,7 +94,7 @@ export default function PaymentsPage() {
         response?.payment ||
         response;
       setSelectedPayment(paymentData);
-      console.log("Payment by order response:", response);
+      // console.log("Payment by order response:", response);
     } catch (error) {
       console.error("Error fetching payment by order:", error);
       toast.error("Failed to load payment details");
@@ -127,7 +128,7 @@ export default function PaymentsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-gray-900">
-          <CreditCard className="text-blue-600" size={32} />
+          <CreditCard className="text-brand" size={32} />
           Payment History
         </h1>
         <p className="text-gray-600">View all your payment transactions</p>
@@ -187,7 +188,7 @@ export default function PaymentsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                       <span className="font-semibold flex items-center justify-end gap-1">
                         <DollarSign size={16} className="text-gray-400" />
-                        {payment.amount}
+                        {formatCurrency(payment.amount)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -205,7 +206,7 @@ export default function PaymentsPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleViewPayment(payment.order_id)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-brand hover:bg-brand-soft rounded-lg transition-colors"
                           title="View Details"
                         >
                           <Eye size={16} />
@@ -323,17 +324,17 @@ export default function PaymentsPage() {
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
             <div className="flex items-center gap-3">
-              <DollarSign className="text-blue-600" size={24} />
+              <DollarSign className="text-brand" size={24} />
               <div>
-                <p className="text-sm text-blue-600 font-medium">Total Spent</p>
-                <p className="text-2xl font-bold text-blue-800">
-                  $
-                  {payments
-                    .filter((p) => p.status === "completed")
-                    .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
-                    .toFixed(2)}
+                <p className="text-sm text-brand font-medium">Total Spent</p>
+                <p className="text-2xl font-bold text-[rgb(var(--brand-primary-dark))]">
+                  {formatCurrency(
+                    payments
+                      .filter((p) => p.status === "completed")
+                      .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+                  )}
                 </p>
               </div>
             </div>
@@ -343,3 +344,5 @@ export default function PaymentsPage() {
     </div>
   );
 }
+
+

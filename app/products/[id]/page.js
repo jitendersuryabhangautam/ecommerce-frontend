@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   ShoppingCart,
@@ -21,6 +21,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
@@ -56,6 +57,15 @@ export default function ProductDetailPage() {
     setAddingToCart(false);
   };
 
+  const handleBuyNow = async () => {
+    if (!product) return;
+
+    setAddingToCart(true);
+    await addToCart(product.id, quantity);
+    setAddingToCart(false);
+    router.push("/checkout");
+  };
+
   const handleQuantityChange = (value) => {
     const newQuantity = Math.max(1, Math.min(product?.stock || 1, value));
     setQuantity(newQuantity);
@@ -68,7 +78,7 @@ export default function ProductDetailPage() {
   ];
 
   const features = [
-    { icon: Truck, text: "Free shipping on orders over $50" },
+    { icon: Truck, text: "Free shipping on orders over ?499" },
     { icon: RotateCcw, text: "30-day return policy" },
     { icon: Shield, text: "2-year warranty" },
   ];
@@ -93,13 +103,13 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="bg-white py-8">
+    <div className="bg-transparent py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-2 lg:gap-x-8">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 bg-white rounded-2xl border border-gray-100 p-6 lg:p-10 shadow-sm">
           {/* Image gallery */}
           <div className="space-y-4">
             {/* Main image */}
-            <div className="relative h-96 w-full overflow-hidden rounded-lg bg-gray-100">
+            <div className="relative h-96 w-full overflow-hidden rounded-2xl bg-gray-100">
               <Image
                 src={images[selectedImage]}
                 alt={product.name}
@@ -135,8 +145,10 @@ export default function ProductDetailPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative h-20 w-full overflow-hidden rounded-lg ${
-                    selectedImage === index ? "ring-2 ring-blue-500" : ""
+                  className={`relative h-20 w-full overflow-hidden rounded-xl ${
+                    selectedImage === index
+                      ? "ring-2 ring-[rgba(255,63,108,0.6)]"
+                      : ""
                   }`}
                 >
                   <Image
@@ -155,7 +167,7 @@ export default function ProductDetailPage() {
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
             {/* Category */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-sm font-semibold text-brand bg-brand-soft px-3 py-1 rounded-full uppercase tracking-wide">
                 {product.category}
               </span>
               <div className="flex items-center space-x-2">
@@ -274,10 +286,10 @@ export default function ProductDetailPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0 || addingToCart}
-                className={`w-full flex items-center justify-center px-6 py-3 rounded-lg font-medium ${
+                className={`w-full flex items-center justify-center px-6 py-3 rounded-full font-medium ${
                   product.stock === 0
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-brand hover:bg-[#e11e5a] text-white"
                 }`}
               >
                 {addingToCart ? (
@@ -295,10 +307,11 @@ export default function ProductDetailPage() {
 
               <button
                 disabled={product.stock === 0}
-                className={`w-full px-6 py-3 rounded-lg font-medium border ${
+                onClick={handleBuyNow}
+                className={`w-full px-6 py-3 rounded-full font-medium border ${
                   product.stock === 0
                     ? "border-gray-300 text-gray-400 cursor-not-allowed"
-                    : "border-blue-600 text-blue-600 hover:bg-blue-50"
+                    : "border-[rgba(255,63,108,0.6)] text-brand hover:bg-brand-soft"
                 }`}
               >
                 Buy Now
@@ -392,3 +405,4 @@ export default function ProductDetailPage() {
     </div>
   );
 }
+

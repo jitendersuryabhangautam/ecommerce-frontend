@@ -59,7 +59,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     onClick={onClose}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                       pathname === item.href
-                        ? "bg-blue-50 text-blue-600"
+                        ? "bg-brand-soft text-brand"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -81,7 +81,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     onClick={onClose}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                       pathname === item.href
-                        ? "bg-blue-50 text-blue-600"
+                        ? "bg-brand-soft text-brand"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
@@ -112,3 +112,5 @@ export default function Sidebar({ isOpen, onClose }) {
     </>
   );
 }
+
+

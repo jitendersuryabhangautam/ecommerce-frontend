@@ -60,8 +60,8 @@ export default function OrderDetailPage() {
         orderService.getOrder(params.id),
         returnService.getUserReturns(),
       ]);
-      console.log("Order detail API response:", orderResponse);
-      console.log("Order detail returns response:", returnsResponse);
+      // console.log("Order detail API response:", orderResponse);
+      // console.log("Order detail returns response:", returnsResponse);
 
       const extractedOrder =
         orderResponse?.data?.data ||
@@ -148,23 +148,23 @@ export default function OrderDetailPage() {
         Date: ${formatDate(order?.created_at || new Date())}
         
         Items:
-        ${order?.items
+          ${order?.items
           ?.map(
             (item) =>
-              `${item.product?.name} x ${item.quantity} - $${
+              `${item.product?.name} x ${item.quantity} - ${formatCurrency(
                 item.price_at_time * item.quantity
-              }`
+              )}`
           )
           .join("\n")}
-        
-        Total: $${order?.total_amount}
+
+        Total: ${formatCurrency(order?.total_amount)}
         
         Shipping Address:
         ${order?.shipping_address?.full_name}
         ${order?.shipping_address?.street}
         ${order?.shipping_address?.city}, ${order?.shipping_address?.state} ${
-        order?.shipping_address?.postal_code
-      }
+          order?.shipping_address?.postal_code
+        }
         
         Thank you for your order!
       `;
@@ -223,7 +223,7 @@ export default function OrderDetailPage() {
           </p>
           <Link
             href="/login"
-            className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a] transition-colors"
           >
             Login to Continue
           </Link>
@@ -253,7 +253,7 @@ export default function OrderDetailPage() {
           </p>
           <Link
             href="/orders"
-            className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a] transition-colors"
           >
             Back to Orders
           </Link>
@@ -280,7 +280,7 @@ export default function OrderDetailPage() {
   };
   const returnStatusColors = {
     [RETURN_STATUS.REQUESTED]: "bg-yellow-100 text-yellow-800",
-    [RETURN_STATUS.APPROVED]: "bg-blue-100 text-blue-800",
+    [RETURN_STATUS.APPROVED]: "bg-brand-soft text-[rgb(var(--brand-primary-dark))]",
     [RETURN_STATUS.REJECTED]: "bg-red-100 text-red-800",
     [RETURN_STATUS.COMPLETED]: "bg-green-100 text-green-800",
   };
@@ -295,7 +295,7 @@ export default function OrderDetailPage() {
             <div className="flex items-center">
               <Link
                 href="/orders"
-                className="flex items-center text-blue-600 hover:text-blue-700 mr-4 transition-colors"
+                className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] mr-4 transition-colors"
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Back to Orders
@@ -348,8 +348,7 @@ export default function OrderDetailPage() {
                         <AlertTriangle className="h-5 w-5 mr-2" />
                       )) || <RefreshCw className="h-5 w-5 mr-2" />}
                       <span className="font-medium">
-                        {returnStatusLabels[returnStatus] ||
-                          "Return Requested"}
+                        {returnStatusLabels[returnStatus] || "Return Requested"}
                       </span>
                     </div>
                   )}
@@ -415,8 +414,7 @@ export default function OrderDetailPage() {
                     steps.push({
                       status: returnStatus,
                       label:
-                        returnStatusLabels[returnStatus] ||
-                        "Return Requested",
+                        returnStatusLabels[returnStatus] || "Return Requested",
                       date: returnItem.created_at || returnItem.updated_at,
                       type: "return",
                     });
@@ -426,8 +424,8 @@ export default function OrderDetailPage() {
                     order.status === "return_requested"
                       ? ORDER_STATUS.DELIVERED
                       : order.status === ORDER_STATUS.CANCELLED
-                      ? ORDER_STATUS.PENDING
-                      : order.status;
+                        ? ORDER_STATUS.PENDING
+                        : order.status;
                   const orderProgressIndex = [
                     ORDER_STATUS.PENDING,
                     ORDER_STATUS.PROCESSING,
@@ -454,9 +452,9 @@ export default function OrderDetailPage() {
                         <div
                           className={`h-6 w-6 rounded-full border-2 z-10 shrink-0 ${
                             isCompleted
-                              ? "bg-blue-600 border-blue-600"
+                              ? "bg-brand border-brand"
                               : "bg-white border-gray-300"
-                          } ${isCurrent ? "ring-4 ring-blue-100" : ""}`}
+                          } ${isCurrent ? "ring-4 ring-[rgba(255,63,108,0.18)]" : ""}`}
                         >
                           {isCompleted && (
                             <CheckCircle className="h-4 w-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
@@ -541,7 +539,7 @@ export default function OrderDetailPage() {
                         <div className="flex-1">
                           <Link
                             href={`/products/${item.product_id}`}
-                            className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                            className="font-medium text-gray-900 hover:text-brand transition-colors"
                           >
                             {item.product?.name}
                           </Link>
@@ -602,7 +600,7 @@ export default function OrderDetailPage() {
             {/* Shipping Information */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <Truck className="h-5 w-5 text-blue-600 mr-3" />
+                <Truck className="h-5 w-5 text-brand mr-3" />
                 <h2 className="text-lg font-bold text-gray-900">
                   Shipping Information
                 </h2>
@@ -646,7 +644,7 @@ export default function OrderDetailPage() {
             {/* Billing Information */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <CreditCard className="h-5 w-5 text-blue-600 mr-3" />
+                <CreditCard className="h-5 w-5 text-brand mr-3" />
                 <h2 className="text-lg font-bold text-gray-900">
                   Billing Information
                 </h2>
@@ -674,7 +672,15 @@ export default function OrderDetailPage() {
                   <h3 className="font-medium text-gray-900 mb-2">
                     Payment Method
                   </h3>
-                  <p className="text-gray-600">Credit Card •••• 1234</p>
+                  <p className="text-gray-600">
+                    {order.payment_method === "cod"
+                      ? "Cash on Delivery"
+                      : order.payment_method === "dc"
+                      ? "Debit Card"
+                      : order.payment_method === "cc"
+                      ? "Credit Card"
+                      : "Payment Method"}
+                  </p>
                   <p className="text-sm text-gray-500 mt-1">
                     Paid on {formatDate(order.created_at)}
                   </p>
@@ -690,9 +696,9 @@ export default function OrderDetailPage() {
               <div className="space-y-4">
                 <button
                   onClick={handleContactSupport}
-                  className="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors w-full text-left"
+                  className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors w-full text-left"
                 >
-                  <Phone className="h-5 w-5 text-blue-600 mr-3" />
+                  <Phone className="h-5 w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Call Us</p>
                     <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
@@ -701,9 +707,9 @@ export default function OrderDetailPage() {
 
                 <button
                   onClick={handleContactSupport}
-                  className="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors w-full text-left"
+                  className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors w-full text-left"
                 >
-                  <Mail className="h-5 w-5 text-blue-600 mr-3" />
+                  <Mail className="h-5 w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Email Us</p>
                     <p className="text-sm text-gray-600">
@@ -714,9 +720,9 @@ export default function OrderDetailPage() {
 
                 <button
                   onClick={handleContactSupport}
-                  className="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors w-full text-left"
+                  className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors w-full text-left"
                 >
-                  <MessageCircle className="h-5 w-5 text-blue-600 mr-3" />
+                  <MessageCircle className="h-5 w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Live Chat</p>
                     <p className="text-sm text-gray-600">Available 24/7</p>
@@ -735,7 +741,7 @@ export default function OrderDetailPage() {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="h-4 w-4 text-brand rounded focus:ring-[rgba(255,63,108,0.6)]"
                       defaultChecked
                     />
                     <span className="ml-2 text-sm text-gray-700">
@@ -745,7 +751,7 @@ export default function OrderDetailPage() {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="h-4 w-4 text-brand rounded focus:ring-[rgba(255,63,108,0.6)]"
                     />
                     <span className="ml-2 text-sm text-gray-700">
                       SMS notifications
@@ -768,7 +774,7 @@ export default function OrderDetailPage() {
               className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow block"
             >
               <div className="flex items-center mb-4">
-                <Home className="h-8 w-8 text-blue-600 mr-4" />
+                <Home className="h-8 w-8 text-brand mr-4" />
                 <h3 className="text-lg font-bold text-gray-900">
                   Continue Shopping
                 </h3>
@@ -783,7 +789,7 @@ export default function OrderDetailPage() {
               className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow block"
             >
               <div className="flex items-center mb-4">
-                <Package className="h-8 w-8 text-blue-600 mr-4" />
+                <Package className="h-8 w-8 text-brand mr-4" />
                 <h3 className="text-lg font-bold text-gray-900">
                   View All Orders
                 </h3>
@@ -798,7 +804,7 @@ export default function OrderDetailPage() {
               className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow text-left w-full"
             >
               <div className="flex items-center mb-4">
-                <MessageCircle className="h-8 w-8 text-blue-600 mr-4" />
+                <MessageCircle className="h-8 w-8 text-brand mr-4" />
                 <h3 className="text-lg font-bold text-gray-900">
                   Contact Support
                 </h3>
@@ -813,3 +819,7 @@ export default function OrderDetailPage() {
     </div>
   );
 }
+
+
+
+

@@ -38,7 +38,7 @@ export default function HomePage() {
     {
       icon: Truck,
       title: "Free Shipping",
-      description: "On orders over $50",
+      description: "On orders over ?499",
     },
     {
       icon: Shield,
@@ -59,29 +59,28 @@ export default function HomePage() {
 
   return (
     <div className="space-y-12">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-20" />
+            {/* Hero Section */}
+      <section className="relative overflow-hidden bg-white">
         <div className="relative px-8 py-16 sm:py-24 lg:py-32">
           <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Welcome to <span className="text-yellow-300">ShopCart</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+              Welcome to <span className="text-brand">ShopCart</span>
             </h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
               Discover amazing products at unbeatable prices. Shop the latest
-              trends with free shipping on orders over $50.
+              trends with free shipping on orders over ₹499.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-blue-600 bg-white rounded-lg hover:bg-gray-100"
+                className="btn-primary"
               >
                 Shop Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Link
                 href="/products?category=sale"
-                className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white border-2 border-white rounded-lg hover:bg-white/10"
+                className="btn-outline"
               >
                 View Sale
               </Link>
@@ -98,11 +97,11 @@ export default function HomePage() {
             return (
               <div
                 key={index}
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-shadow border border-gray-100"
               >
                 <div className="flex items-center mb-4">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <Icon className="h-6 w-6 text-blue-600" />
+                  <div className="p-3 bg-brand-soft rounded-xl">
+                    <Icon className="h-6 w-6 text-brand" />
                   </div>
                   <h3 className="ml-4 text-lg font-semibold">
                     {feature.title}
@@ -128,7 +127,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/products"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+            className="inline-flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] font-semibold"
           >
             View All
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -148,27 +147,55 @@ export default function HomePage() {
           Shop by Category
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {["Electronics", "Clothing", "Books", "Home", "Sports"].map(
-            (category) => (
-              <Link
-                key={category}
-                href={`/products?category=${category.toLowerCase()}`}
-                className="group relative overflow-hidden rounded-xl bg-white shadow-md hover:shadow-xl transition-all duration-300"
-              >
-                <div className="aspect-square bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors duration-300" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                    {category}
-                  </span>
-                </div>
-              </Link>
-            )
-          )}
+          {[
+            {
+              name: "Electronics",
+              image:
+                "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+            },
+            {
+              name: "Clothing",
+              image:
+                "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80",
+            },
+            {
+              name: "Books",
+              image:
+                "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80",
+            },
+            {
+              name: "Home",
+              image:
+                "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?auto=format&fit=crop&w=800&q=80",
+            },
+            {
+              name: "Sports",
+              image:
+                "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80",
+            },
+          ].map((category) => (
+            <Link
+              key={category.name}
+              href={`/products?category=${category.name.toLowerCase()}`}
+              className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300"
+            >
+              <div
+                className="aspect-square bg-center bg-cover"
+                style={{ backgroundImage: `url(${category.image})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent group-hover:from-black/60 transition" />
+              <div className="absolute inset-0 flex items-end p-4">
+                <span className="text-lg font-semibold text-white drop-shadow">
+                  {category.name}
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="bg-gray-50 rounded-2xl p-8">
+      <section className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
         <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
           What Our Customers Say
         </h2>
@@ -196,7 +223,7 @@ export default function HomePage() {
               rating: 4,
             },
           ].map((testimonial, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-sm">
+            <div key={index} className="bg-gray-50/70 p-6 rounded-2xl border border-gray-100">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star
@@ -225,25 +252,19 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="text-center">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-12">
+        <div className="bg-gradient-to-r from-[#ff3f6c] to-[#ff7a59] rounded-2xl p-12">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to Start Shopping?
           </h2>
-          <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
             Join thousands of satisfied customers. Sign up today and get 10% off
             your first order!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-blue-600 bg-white rounded-lg hover:bg-gray-100"
-            >
+            <Link href="/register" className="btn-outline">
               Sign Up Free
             </Link>
-            <Link
-              href="/products"
-              className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white border-2 border-white rounded-lg hover:bg-white/10"
-            >
+            <Link href="/products" className="btn-primary">
               Browse Products
             </Link>
           </div>
@@ -252,3 +273,6 @@ export default function HomePage() {
     </div>
   );
 }
+
+
+

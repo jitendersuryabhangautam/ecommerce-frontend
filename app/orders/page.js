@@ -34,20 +34,15 @@ export default function OrdersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [returnsByOrderId, setReturnsByOrderId] = useState({});
 
-  console.log(
-    "OrdersPage render - user:",
-    user,
-    "isAuthenticated:",
-    isAuthenticated
-  );
+  // console.log("OrdersPage render - user:", user, "isAuthenticated:", isAuthenticated);
 
   useEffect(() => {
-    console.log("Orders page useEffect - isAuthenticated:", isAuthenticated);
+    // console.log("Orders page useEffect - isAuthenticated:", isAuthenticated);
     if (isAuthenticated) {
-      console.log("Calling fetchOrders...");
+      // console.log("Calling fetchOrders...");
       fetchOrders();
     } else {
-      console.log("User not authenticated, skipping orders fetch");
+      // console.log("User not authenticated, skipping orders fetch");
       setLoading(false);
     }
   }, [isAuthenticated, filter, page]);
@@ -60,13 +55,13 @@ export default function OrdersPage() {
         params.status = filter;
       }
 
-      console.log("Orders fetch params:", params);
+      // console.log("Orders fetch params:", params);
       const [ordersResponse, returnsResponse] = await Promise.all([
         orderService.getOrders(params),
         returnService.getUserReturns(),
       ]);
-      console.log("Orders API response:", ordersResponse);
-      console.log("Returns API response:", returnsResponse);
+      // console.log("Orders API response:", ordersResponse);
+      // console.log("Returns API response:", returnsResponse);
 
       const extractArray = (response, key) => {
         if (response?.data?.[key]) return response.data[key];
@@ -103,8 +98,8 @@ export default function OrdersPage() {
         return acc;
       }, {});
 
-      console.log("Extracted orders:", ordersData);
-      console.log("Mapped returns by order:", mappedReturns);
+      // console.log("Extracted orders:", ordersData);
+      // console.log("Mapped returns by order:", mappedReturns);
       setOrders(ordersData);
       setReturnsByOrderId(mappedReturns);
       setTotalPages(
@@ -156,7 +151,7 @@ export default function OrdersPage() {
     const status = returnItem.status || RETURN_STATUS.REQUESTED;
     const returnStatusColors = {
       [RETURN_STATUS.REQUESTED]: "bg-yellow-100 text-yellow-800",
-      [RETURN_STATUS.APPROVED]: "bg-blue-100 text-blue-800",
+      [RETURN_STATUS.APPROVED]: "bg-brand-soft text-[rgb(var(--brand-primary-dark))]",
       [RETURN_STATUS.REJECTED]: "bg-red-100 text-red-800",
       [RETURN_STATUS.COMPLETED]: "bg-green-100 text-green-800",
     };
@@ -191,7 +186,7 @@ export default function OrdersPage() {
         <p className="text-gray-600 mt-2">Please login to view your orders</p>
         <Link
           href="/login"
-          className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a]"
         >
           Login to Continue
         </Link>
@@ -242,7 +237,7 @@ export default function OrdersPage() {
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
                 filter === status
-                  ? "bg-blue-600 text-white"
+                  ? "bg-brand text-white"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -267,7 +262,7 @@ export default function OrdersPage() {
           </p>
           <Link
             href="/products"
-            className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a]"
           >
             Start Shopping
           </Link>
@@ -363,7 +358,7 @@ export default function OrdersPage() {
                     onClick={() => setPage(pageNumber)}
                     className={`px-4 py-2 rounded-lg text-sm ${
                       page === pageNumber
-                        ? "bg-blue-600 text-white"
+                        ? "bg-brand text-white"
                         : "border border-gray-300 hover:bg-gray-50"
                     }`}
                   >
@@ -393,3 +388,6 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+
+

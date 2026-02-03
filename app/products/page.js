@@ -26,6 +26,24 @@ export default function ProductsPage() {
     fetchProducts();
   }, [filters]);
 
+  useEffect(() => {
+    const categoryParam = searchParams.get("category") || "";
+    const searchParam = searchParams.get("search") || "";
+    const normalizedCategory =
+      CATEGORIES.find(
+        (category) =>
+          category !== "All" &&
+          category.toLowerCase() === categoryParam.toLowerCase()
+      ) || "";
+
+    setFilters((prev) => ({
+      ...prev,
+      category: normalizedCategory,
+      search: searchParam,
+      page: 1,
+    }));
+  }, [searchParams]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -77,7 +95,7 @@ export default function ProductsPage() {
             {/* Mobile filter toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden w-full flex items-center justify-between p-4 bg-white rounded-lg shadow-sm mb-4"
+              className="lg:hidden w-full flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm mb-4 border border-gray-100"
             >
               <div className="flex items-center">
                 <Filter className="h-5 w-5 mr-2" />
@@ -94,7 +112,7 @@ export default function ProductsPage() {
             <div
               className={`${
                 showFilters ? "block" : "hidden"
-              } lg:block bg-white rounded-lg shadow-sm p-6`}
+              } lg:block bg-white rounded-2xl shadow-sm p-6 border border-gray-100`}
             >
               <div className="space-y-6">
                 {/* Category Filter */}
@@ -110,10 +128,10 @@ export default function ProductsPage() {
                             category === "All" ? "" : category
                           )
                         }
-                        className={`block w-full text-left px-3 py-2 rounded-md text-sm ${
+                        className={`block w-full text-left px-3 py-2 rounded-full text-sm font-medium ${
                           filters.category ===
                           (category === "All" ? "" : category)
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-brand-soft text-brand"
                             : "text-gray-700 hover:bg-gray-100"
                         }`}
                       >
@@ -129,7 +147,7 @@ export default function ProductsPage() {
                   <select
                     value={filters.sort}
                     onChange={(e) => handleFilterChange("sort", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="input-primary"
                   >
                     <option value="newest">Newest</option>
                     <option value="price_asc">Price: Low to High</option>
@@ -140,10 +158,7 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Clear Filters */}
-                <button
-                  onClick={clearFilters}
-                  className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                >
+                <button onClick={clearFilters} className="btn-ghost w-full">
                   Clear All Filters
                 </button>
               </div>
@@ -154,16 +169,16 @@ export default function ProductsPage() {
         {/* Products Grid */}
         <div className="lg:col-span-3">
           {/* Toolbar */}
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+          <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 {/* View Toggle */}
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded-md ${
+                    className={`p-2 rounded-full ${
                       viewMode === "grid"
-                        ? "bg-blue-100 text-blue-600"
+                        ? "bg-brand-soft text-brand"
                         : "text-gray-400 hover:text-gray-600"
                     }`}
                   >
@@ -171,9 +186,9 @@ export default function ProductsPage() {
                   </button>
                   <button
                     onClick={() => setViewMode("list")}
-                    className={`p-2 rounded-md ${
+                    className={`p-2 rounded-full ${
                       viewMode === "list"
-                        ? "bg-blue-100 text-blue-600"
+                        ? "bg-brand-soft text-brand"
                         : "text-gray-400 hover:text-gray-600"
                     }`}
                   >
@@ -187,7 +202,7 @@ export default function ProductsPage() {
                   onChange={(e) =>
                     handleFilterChange("limit", parseInt(e.target.value))
                   }
-                  className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                  className="input-primary text-sm py-1"
                 >
                   <option value={12}>12 per page</option>
                   <option value={24}>24 per page</option>
@@ -210,6 +225,7 @@ export default function ProductsPage() {
               products={products}
               loading={loading}
               emptyMessage="No products found. Try adjusting your filters."
+              viewMode={viewMode}
             />
           </div>
 
@@ -220,7 +236,7 @@ export default function ProductsPage() {
                 <button
                   onClick={() => handlePageChange(filters.page - 1)}
                   disabled={filters.page === 1}
-                  className="px-3 py-2 rounded-md border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="px-3 py-2 rounded-full border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
                   Previous
                 </button>
@@ -238,9 +254,9 @@ export default function ProductsPage() {
                       <button
                         key={pageNumber}
                         onClick={() => handlePageChange(pageNumber)}
-                        className={`px-3 py-2 rounded-md text-sm ${
+                        className={`px-3 py-2 rounded-full text-sm ${
                           filters.page === pageNumber
-                            ? "bg-blue-600 text-white"
+                            ? "bg-brand text-white"
                             : "border border-gray-300 hover:bg-gray-50"
                         }`}
                       >
@@ -263,7 +279,7 @@ export default function ProductsPage() {
                 <button
                   onClick={() => handlePageChange(filters.page + 1)}
                   disabled={filters.page === totalPages}
-                  className="px-3 py-2 rounded-md border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="px-3 py-2 rounded-full border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
                   Next
                 </button>
@@ -275,3 +291,4 @@ export default function ProductsPage() {
     </div>
   );
 }
+

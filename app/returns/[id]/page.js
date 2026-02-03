@@ -22,10 +22,11 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { formatCurrency } from "@/utils/helpers";
 
 const returnStatusColors = {
   requested: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  approved: "bg-blue-100 text-blue-800 border-blue-200",
+  approved: "bg-brand-soft text-[rgb(var(--brand-primary-dark))] border-[rgba(255,63,108,0.2)]",
   rejected: "bg-red-100 text-red-800 border-red-200",
   completed: "bg-green-100 text-green-800 border-green-200",
 };
@@ -66,10 +67,10 @@ export default function ReturnDetailPage() {
   if (!isAuthenticated) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
           <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-blue-500 mr-2" />
-            <p className="text-blue-700">
+            <AlertCircle className="h-5 w-5 text-brand mr-2" />
+            <p className="text-[rgb(var(--brand-primary-dark))]">
               Please login to view return details.
             </p>
           </div>
@@ -110,7 +111,7 @@ export default function ReturnDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <RefreshCw className="h-8 w-8 mr-3 text-blue-600" />
+            <RefreshCw className="h-8 w-8 mr-3 text-brand" />
             Return Details
           </h1>
           <p className="text-gray-600 mt-2">
@@ -133,14 +134,14 @@ export default function ReturnDetailPage() {
           {/* Return Information Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Package className="h-5 w-5 mr-2 text-blue-600" />
+              <Package className="h-5 w-5 mr-2 text-brand" />
               Return Information
             </h2>
             <div className="border-t border-gray-200 pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <div className="flex items-center mb-1">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                    <div className="w-3 h-3 bg-brand rounded-full mr-2"></div>
                     <p className="text-sm font-medium text-gray-700">
                       Return ID
                     </p>
@@ -230,7 +231,7 @@ export default function ReturnDetailPage() {
                           Refund Amount Processed
                         </p>
                         <p className="text-2xl font-bold text-green-900">
-                          ${returnItem.refund_amount}
+                          {formatCurrency(returnItem.refund_amount)}
                         </p>
                       </div>
                     </div>
@@ -248,8 +249,8 @@ export default function ReturnDetailPage() {
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <Calendar className="h-4 w-4 text-blue-600" />
+                  <div className="w-8 h-8 rounded-full bg-brand-soft flex items-center justify-center">
+                    <Calendar className="h-4 w-4 text-brand" />
                   </div>
                 </div>
                 <div className="ml-4">
@@ -294,7 +295,7 @@ export default function ReturnDetailPage() {
                         Refund Processed
                       </p>
                       <p className="text-sm text-gray-500">
-                        Refund of ${returnItem.refund_amount} completed
+                        Refund of {formatCurrency(returnItem.refund_amount)} completed
                       </p>
                     </div>
                   </div>
@@ -321,7 +322,7 @@ export default function ReturnDetailPage() {
                     <div className="flex items-center mt-1">
                       <DollarSign className="h-4 w-4 text-gray-400 mr-1" />
                       <p className="text-xl font-bold text-gray-900">
-                        ${returnItem.order.total_amount}
+                        {formatCurrency(returnItem.order.total_amount)}
                       </p>
                     </div>
                   </div>
@@ -350,10 +351,10 @@ export default function ReturnDetailPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
                   <div className="flex items-center">
-                    <Info className="h-5 w-5 text-blue-500 mr-2" />
-                    <p className="text-blue-700">
+                    <Info className="h-5 w-5 text-brand mr-2" />
+                    <p className="text-[rgb(var(--brand-primary-dark))]">
                       Order information not available
                     </p>
                   </div>
@@ -369,12 +370,12 @@ export default function ReturnDetailPage() {
             </h2>
             <div className="border-t border-gray-200 pt-4">
               {returnItem.status === "requested" && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
                   <div className="flex items-start">
-                    <Clock className="h-5 w-5 text-blue-600 mr-3 shrink-0 mt-0.5" />
+                    <Clock className="h-5 w-5 text-brand mr-3 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-blue-800">Under Review</p>
-                      <p className="text-sm text-blue-700 mt-1">
+                      <p className="font-medium text-[rgb(var(--brand-primary-dark))]">Under Review</p>
+                      <p className="text-sm text-[rgb(var(--brand-primary-dark))] mt-1">
                         Your return request has been submitted and is under
                         review by our team.
                       </p>
@@ -457,3 +458,6 @@ export default function ReturnDetailPage() {
     </div>
   );
 }
+
+
+

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { returnService, orderService } from "@/services/api";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { formatCurrency } from "@/utils/helpers";
 import {
   Package,
   RefreshCw,
@@ -23,7 +24,7 @@ import {
 
 const returnStatusColors = {
   requested: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  approved: "bg-blue-100 text-blue-800 border-blue-200",
+  approved: "bg-brand-soft text-[rgb(var(--brand-primary-dark))] border-[rgba(255,63,108,0.2)]",
   rejected: "bg-red-100 text-red-800 border-red-200",
   completed: "bg-green-100 text-green-800 border-green-200",
 };
@@ -65,8 +66,8 @@ export default function ReturnsPage() {
         returnService.getUserReturns(),
         orderService.getUserOrders(),
       ]);
-      console.log("Fetched Returns Data:", returnsData);
-      console.log("Fetched Orders Data:", ordersData);
+      // console.log("Fetched Returns Data:", returnsData);
+      // console.log("Fetched Orders Data:", ordersData);
       setReturns(returnsData.returns || []);
       setOrders(
         ordersData.orders?.filter((order) =>
@@ -137,10 +138,10 @@ export default function ReturnsPage() {
   if (!isAuthenticated) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
           <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-blue-500 mr-2" />
-            <p className="text-blue-700">Please login to view your returns.</p>
+            <AlertCircle className="h-5 w-5 text-brand mr-2" />
+            <p className="text-[rgb(var(--brand-primary-dark))]">Please login to view your returns.</p>
           </div>
         </div>
       </div>
@@ -155,7 +156,7 @@ export default function ReturnsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <RefreshCw className="h-8 w-8 mr-3 text-blue-600" />
+            <RefreshCw className="h-8 w-8 mr-3 text-brand" />
             My Returns
           </h1>
           <p className="text-gray-600 mt-2">
@@ -170,7 +171,7 @@ export default function ReturnsPage() {
           className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
             orders.length === 0
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg"
+              : "bg-brand text-white hover:bg-[#e11e5a] shadow-md hover:shadow-lg"
           }`}
         >
           <Plus className="h-5 w-5 mr-2" />
@@ -187,7 +188,7 @@ export default function ReturnsPage() {
             placeholder="Search returns by ID, order number, reason, or status..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))] outline-none transition"
           />
           {searchTerm && (
             <button
@@ -220,7 +221,7 @@ export default function ReturnsPage() {
                 onClick={() =>
                   setCreateDialog({ open: true, orderId: "", reason: "" })
                 }
-                className="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="inline-flex items-center px-5 py-2.5 bg-brand text-white rounded-lg hover:bg-[#e11e5a] transition"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Request Your First Return
@@ -296,7 +297,7 @@ export default function ReturnsPage() {
                           <DollarSign className="h-4 w-4 text-gray-400 mr-1" />
                           <span className="text-sm font-medium text-gray-900">
                             {returnItem.refund_amount
-                              ? `$${returnItem.refund_amount}`
+                              ? formatCurrency(returnItem.refund_amount)
                               : "N/A"}
                           </span>
                         </div>
@@ -326,8 +327,8 @@ export default function ReturnsPage() {
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
             <div className="flex items-center">
-              <div className="p-3 bg-blue-50 rounded-lg mr-4">
-                <RefreshCw className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-brand-soft rounded-lg mr-4">
+                <RefreshCw className="h-6 w-6 text-brand" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Returns</p>
@@ -391,7 +392,7 @@ export default function ReturnsPage() {
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <ArrowLeft className="h-5 w-5 text-blue-600 mr-3" />
+                  <ArrowLeft className="h-5 w-5 text-brand mr-3" />
                   <h2 className="text-xl font-bold text-gray-900">
                     Request Return
                   </h2>
@@ -423,15 +424,15 @@ export default function ReturnsPage() {
                           orderId: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))] outline-none appearance-none"
                     >
                       <option value="" disabled>
                         Choose an order...
                       </option>
                       {orders.map((order) => (
                         <option key={order.id} value={order.id}>
-                          Order #{order.order_number} - ${order.total_amount} -{" "}
-                          {order.status}
+                          Order #{order.order_number} -{" "}
+                          {formatCurrency(order.total_amount)} - {order.status}
                         </option>
                       ))}
                     </select>
@@ -453,7 +454,7 @@ export default function ReturnsPage() {
                     }
                     placeholder="Please describe why you want to return this item..."
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))] outline-none resize-none"
                   />
                   <p className="text-sm text-gray-500 mt-1">
                     Please be specific about the reason for your return request.
@@ -475,7 +476,7 @@ export default function ReturnsPage() {
                 </button>
                 <button
                   onClick={handleCreateReturn}
-                  className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition flex items-center"
+                  className="px-5 py-2.5 bg-brand text-white font-medium rounded-lg hover:bg-[#e11e5a] transition flex items-center"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Submit Request
@@ -494,8 +495,8 @@ export default function ReturnsPage() {
               snackbar.severity === "success"
                 ? "bg-green-50 border-green-200"
                 : snackbar.severity === "error"
-                ? "bg-red-50 border-red-200"
-                : "bg-blue-50 border-blue-200"
+                  ? "bg-red-50 border-red-200"
+                  : "bg-brand-soft border-[rgba(255,63,108,0.2)]"
             }`}
           >
             <div className="flex items-start">
@@ -504,7 +505,7 @@ export default function ReturnsPage() {
               ) : snackbar.severity === "error" ? (
                 <XCircle className="h-5 w-5 text-red-600 mr-3 shrink-0 mt-0.5" />
               ) : (
-                <AlertTriangle className="h-5 w-5 text-blue-600 mr-3 shrink-0 mt-0.5" />
+                <AlertTriangle className="h-5 w-5 text-brand mr-3 shrink-0 mt-0.5" />
               )}
               <div className="flex-1">
                 <p
@@ -512,8 +513,8 @@ export default function ReturnsPage() {
                     snackbar.severity === "success"
                       ? "text-green-800"
                       : snackbar.severity === "error"
-                      ? "text-red-800"
-                      : "text-blue-800"
+                        ? "text-red-800"
+                        : "text-[rgb(var(--brand-primary-dark))]"
                   }`}
                 >
                   {snackbar.message}
@@ -532,3 +533,6 @@ export default function ReturnsPage() {
     </div>
   );
 }
+
+
+

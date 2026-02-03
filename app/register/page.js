@@ -115,7 +115,7 @@ export default function RegisterPage() {
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 bg-brand rounded-lg flex items-center justify-center">
             <User className="h-6 w-6 text-white" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -125,7 +125,7 @@ export default function RegisterPage() {
             Or{" "}
             <Link
               href="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-medium text-brand hover:text-brand"
             >
               sign in to your existing account
             </Link>
@@ -151,7 +151,7 @@ export default function RegisterPage() {
                   required
                   value={formData.first_name}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full px-3 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`appearance-none relative block w-full px-3 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent ${
                     errors.first_name ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="John"
@@ -178,7 +178,7 @@ export default function RegisterPage() {
                   required
                   value={formData.last_name}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full px-3 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`appearance-none relative block w-full px-3 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent ${
                     errors.last_name ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Doe"
@@ -211,7 +211,7 @@ export default function RegisterPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-3 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`appearance-none relative block w-full pl-10 pr-3 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent ${
                     errors.email ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="you@example.com"
@@ -242,7 +242,7 @@ export default function RegisterPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-10 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`appearance-none relative block w-full pl-10 pr-10 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent ${
                     errors.password ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="••••••••"
@@ -319,7 +319,7 @@ export default function RegisterPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`appearance-none relative block w-full pl-10 pr-10 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`appearance-none relative block w-full pl-10 pr-10 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent ${
                     errors.confirmPassword
                       ? "border-red-300"
                       : "border-gray-300"
@@ -354,7 +354,7 @@ export default function RegisterPage() {
                 name="terms"
                 type="checkbox"
                 required
-                className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                className="focus:ring-[rgba(255,63,108,0.6)] h-4 w-4 text-brand border-gray-300 rounded"
               />
             </div>
             <div className="ml-3 text-sm">
@@ -362,14 +362,14 @@ export default function RegisterPage() {
                 I agree to the{" "}
                 <a
                   href="/terms"
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  className="font-medium text-brand hover:text-brand"
                 >
                   Terms of Service
                 </a>{" "}
                 and{" "}
                 <a
                   href="/privacy"
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  className="font-medium text-brand hover:text-brand"
                 >
                   Privacy Policy
                 </a>
@@ -384,7 +384,7 @@ export default function RegisterPage() {
                 id="newsletter"
                 name="newsletter"
                 type="checkbox"
-                className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                className="focus:ring-[rgba(255,63,108,0.6)] h-4 w-4 text-brand border-gray-300 rounded"
               />
             </div>
             <div className="ml-3 text-sm">
@@ -399,7 +399,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-brand hover:bg-[#e11e5a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[rgba(255,63,108,0.6)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -451,3 +451,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+

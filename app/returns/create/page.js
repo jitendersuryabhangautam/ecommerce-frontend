@@ -10,6 +10,7 @@ import { returnService } from "@/services/returnService";
 import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-hot-toast";
+import { formatCurrency } from "@/utils/helpers";
 
 export default function CreateReturnPage() {
   const router = useRouter();
@@ -77,11 +78,11 @@ export default function CreateReturnPage() {
         items: selectedItems,
       };
 
-      console.log("Submitting return data:", returnData);
+      // console.log("Submitting return data:", returnData);
 
       // Call your return service
       const response = await returnService.createReturn(returnData);
-      console.log("Return response:", response);
+      // console.log("Return response:", response);
 
       toast.success("Return request submitted successfully!");
 
@@ -113,7 +114,7 @@ export default function CreateReturnPage() {
           <p className="text-gray-600 mt-2">Please login to create a return</p>
           <Link
             href="/login"
-            className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a] transition-colors"
           >
             Login to Continue
           </Link>
@@ -143,7 +144,7 @@ export default function CreateReturnPage() {
           </p>
           <Link
             href="/orders"
-            className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block mt-6 px-6 py-3 bg-brand text-white rounded-lg hover:bg-[#e11e5a] transition-colors"
           >
             Back to Orders
           </Link>
@@ -159,7 +160,7 @@ export default function CreateReturnPage() {
         <div className="mb-8">
           <Link
             href={`/orders/${orderId}`}
-            className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+            className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] mb-4 transition-colors"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Order
@@ -172,7 +173,7 @@ export default function CreateReturnPage() {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           {/* Order Summary */}
-          <div className="mb-8 p-4 bg-blue-50 rounded-lg">
+          <div className="mb-8 p-4 bg-brand-soft rounded-lg">
             <h2 className="text-lg font-bold text-gray-900 mb-2">
               Order Summary
             </h2>
@@ -185,7 +186,9 @@ export default function CreateReturnPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Total Amount</p>
-                <p className="font-medium">${order.total_amount}</p>
+                <p className="font-medium">
+                  {formatCurrency(order.total_amount)}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Status</p>
@@ -214,7 +217,7 @@ export default function CreateReturnPage() {
                       type="checkbox"
                       checked={selectedItems.includes(item.id)}
                       onChange={() => toggleItemSelection(item.id)}
-                      className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                      className="h-5 w-5 text-brand rounded focus:ring-[rgba(255,63,108,0.6)]"
                     />
                     <div className="ml-4 flex-1">
                       <p className="font-medium text-gray-900">
@@ -225,7 +228,7 @@ export default function CreateReturnPage() {
                           Quantity: {item.quantity}
                         </p>
                         <p className="font-medium">
-                          ${item.price_at_time * item.quantity}
+                          {formatCurrency(item.price_at_time * item.quantity)}
                         </p>
                       </div>
                     </div>
@@ -242,7 +245,7 @@ export default function CreateReturnPage() {
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))]"
                 required
               >
                 <option value="">Select a reason</option>
@@ -266,7 +269,7 @@ export default function CreateReturnPage() {
                   value={additionalNotes}
                   onChange={(e) => setAdditionalNotes(e.target.value)}
                   rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-[rgb(var(--brand-primary))]"
                   placeholder="Please provide any additional details about your return..."
                 />
               </div>
@@ -326,3 +329,6 @@ export default function CreateReturnPage() {
     </div>
   );
 }
+
+
+

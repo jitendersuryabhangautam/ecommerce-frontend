@@ -18,7 +18,7 @@ import {
 
 const returnStatusColors = {
   requested: "bg-yellow-100 text-yellow-800",
-  approved: "bg-blue-100 text-blue-800",
+  approved: "bg-brand-soft text-[rgb(var(--brand-primary-dark))]",
   rejected: "bg-red-100 text-red-800",
   completed: "bg-green-100 text-green-800",
 };
@@ -143,7 +143,7 @@ export default function AdminReturnsPage() {
       )}
 
       <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
-        <Package className="text-blue-600" size={32} />
+        <Package className="text-brand" size={32} />
         Return Management
       </h1>
 
@@ -231,7 +231,7 @@ export default function AdminReturnsPage() {
                     {returnItem.status === "requested" && (
                       <button
                         onClick={() => handleProcessReturn(returnItem)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="bg-brand text-white px-4 py-2 rounded-lg hover:bg-[#e11e5a] transition-colors"
                       >
                         Process
                       </button>
@@ -276,17 +276,17 @@ export default function AdminReturnsPage() {
                         refundAmount: e.target.value,
                       })
                     }
-                    className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent"
                     placeholder="0.00"
                   />
                 </div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+              <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4 flex items-start gap-3">
                 <AlertCircle
-                  className="text-blue-600 mt-0.5 shrink-0"
+                  className="text-brand mt-0.5 shrink-0"
                   size={20}
                 />
-                <p className="text-sm text-blue-800">
+                <p className="text-sm text-[rgb(var(--brand-primary-dark))]">
                   This will approve the return and issue a refund to the
                   customer.
                 </p>
@@ -327,3 +327,6 @@ export default function AdminReturnsPage() {
     </div>
   );
 }
+
+
+

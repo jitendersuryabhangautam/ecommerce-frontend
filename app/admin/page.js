@@ -134,8 +134,8 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    console.log("User:", user);
-    console.log("IsAdmin:", isAdmin);
+    // console.log("User:", user);
+    // console.log("IsAdmin:", isAdmin);
 
     // if (!isAdmin) {
     //   router.push("/");
@@ -149,7 +149,7 @@ export default function AdminDashboard() {
       case "completed":
         return "bg-green-100 text-green-800";
       case "processing":
-        return "bg-blue-100 text-blue-800";
+        return "bg-brand-soft text-[rgb(var(--brand-primary-dark))]";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "shipped":
@@ -184,9 +184,9 @@ export default function AdminDashboard() {
       title: "Total Orders",
       value: stats.totalOrders.toString(),
       icon: ShoppingCart,
-      color: "bg-blue-500",
+      color: "bg-brand",
       change: "+8.2%",
-      changeColor: "text-blue-600",
+      changeColor: "text-brand",
     },
     {
       title: "Total Products",
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
       description: "Create a new product listing",
       icon: Package,
       href: "/admin/products/new",
-      color: "bg-blue-100 text-blue-600",
+      color: "bg-brand-soft text-brand",
     },
     {
       title: "View Orders",
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                 </button>
                 <a
                   href="/admin/orders"
-                  className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] text-sm font-medium"
                 >
                   View all
                   <ChevronRight className="h-4 w-4 ml-1" />
@@ -386,7 +386,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-brand hover:text-[rgb(var(--brand-primary-dark))]">
                           <Eye className="h-4 w-4" />
                         </button>
                         <button className="text-gray-600 hover:text-gray-900">
@@ -416,7 +416,7 @@ export default function AdminDashboard() {
               </div>
               <a
                 href="/admin/products"
-                className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] text-sm font-medium"
               >
                 View all
                 <ChevronRight className="h-4 w-4 ml-1" />
@@ -504,7 +504,7 @@ export default function AdminDashboard() {
                 user: "John Doe",
                 action: "placed an order",
                 time: "2 hours ago",
-                color: "bg-blue-500",
+                color: "bg-brand",
               },
               {
                 user: "Jane Smith",
@@ -544,3 +544,6 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
+
