@@ -59,7 +59,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-12">
-            {/* Hero Section */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden bg-white">
         <div
           className="absolute inset-0 bg-center bg-cover"
@@ -68,7 +68,7 @@ export default function HomePage() {
               "url(https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/10" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/55 via-black/30 to-black/10" />
         <div className="relative px-8 py-16 sm:py-24 lg:py-32">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white/70 mb-6">
@@ -82,17 +82,11 @@ export default function HomePage() {
               trends with free shipping on orders over ₹499.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/products"
-                className="btn-primary"
-              >
+              <Link href="/products" className="btn-primary">
                 Shop Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <Link
-                href="/products?category=sale"
-                className="btn-outline"
-              >
+              <Link href="/products?category=sale" className="btn-outline">
                 View Sale
               </Link>
             </div>
@@ -195,7 +189,7 @@ export default function HomePage() {
                 className="aspect-square bg-center bg-cover"
                 style={{ backgroundImage: `url(${category.image})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent group-hover:from-black/60 transition" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent group-hover:from-black/60 transition" />
               <div className="absolute inset-0 flex items-end p-4">
                 <span className="text-lg font-semibold text-white drop-shadow">
                   {category.name}
@@ -235,7 +229,10 @@ export default function HomePage() {
               rating: 4,
             },
           ].map((testimonial, index) => (
-            <div key={index} className="bg-gray-50/70 p-6 rounded-2xl border border-gray-100">
+            <div
+              key={index}
+              className="bg-gray-50/70 p-6 rounded-2xl border border-gray-100"
+            >
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star
@@ -264,7 +261,7 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="text-center">
-        <div className="bg-gradient-to-r from-[#ff3f6c] to-[#ff7a59] rounded-2xl p-12">
+        <div className="bg-linear-to-r from-[#ff3f6c] to-[#ff7a59] rounded-2xl p-12">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to Start Shopping?
           </h2>
@@ -285,6 +282,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
-

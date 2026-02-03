@@ -175,7 +175,7 @@ export default function CartPage() {
                           >
                             <Minus className="h-4 w-4" />
                           </button>
-                          <span className="px-3 py-1 border-x border-gray-300 min-w-[40px] text-center">
+                          <span className="px-3 py-1 border-x border-gray-300 min-w-10 text-center">
                             {updatingItem === item.id ? (
                               <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand border-t-transparent mx-auto" />
                             ) : (
@@ -265,8 +265,8 @@ export default function CartPage() {
                       appliedPromo.type === "percent"
                         ? (cartTotal * appliedPromo.value) / 100
                         : appliedPromo.type === "flat"
-                        ? appliedPromo.value
-                        : 0
+                          ? appliedPromo.value
+                          : 0
                     )}
                   </span>
                 </div>
@@ -302,8 +302,8 @@ export default function CartPage() {
                           ? appliedPromo.type === "percent"
                             ? (cartTotal * appliedPromo.value) / 100
                             : appliedPromo.type === "flat"
-                            ? appliedPromo.value
-                            : 0
+                              ? appliedPromo.value
+                              : 0
                           : 0)
                     )}
                   </span>
@@ -366,5 +366,3 @@ export default function CartPage() {
     </div>
   );
 }
-
-

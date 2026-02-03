@@ -197,7 +197,7 @@ export default function Header({ onMenuClick }) {
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white rounded-full bg-gradient-to-r from-[#ff3f6c] to-[#ff7a59] hover:from-[#ff2f60] hover:to-[#ff6d4e] shadow-md"
+                  className="px-4 py-2 text-sm font-medium text-white rounded-full bg-linear-to-r from-[#ff3f6c] to-[#ff7a59] hover:from-[#ff2f60] hover:to-[#ff6d4e] shadow-md"
                 >
                   Sign Up
                 </Link>
@@ -209,4 +209,3 @@ export default function Header({ onMenuClick }) {
     </header>
   );
 }
-

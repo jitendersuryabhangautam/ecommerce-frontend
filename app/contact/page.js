@@ -300,7 +300,7 @@ function ContactPageContent() {
         </div>
 
         {/* Support Guarantee */}
-        <div className="mt-12 bg-gradient-to-r from-[#ff3f6c] to-[#ff7a59] rounded-lg p-8 text-white">
+        <div className="mt-12 bg-linear-to-r from-[#ff3f6c] to-[#ff7a59] rounded-lg p-8 text-white">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">24/7 Support Guarantee</h2>
             <p className="text-white/80 max-w-2xl mx-auto">
@@ -336,5 +336,3 @@ export default function ContactPage() {
     </Suspense>
   );
 }
-
-
