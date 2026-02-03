@@ -122,7 +122,8 @@ export default function ProductDetailPage() {
                     alt={`${product.name} view ${index + 1}`}
                     fill
                     className="object-cover"
-                    sizes="88px"
+                    sizes="120px"
+                    quality={85}
                   />
                 </button>
               ))}
@@ -135,6 +136,7 @@ export default function ProductDetailPage() {
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  quality={90}
                 />
               </div>
             </div>
