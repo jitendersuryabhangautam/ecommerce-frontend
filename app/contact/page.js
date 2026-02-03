@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Phone, MessageCircle, Clock, CheckCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 
-export default function ContactPage() {
+function ContactPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
@@ -326,6 +326,14 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white py-12" />}>
+      <ContactPageContent />
+    </Suspense>
   );
 }
 
