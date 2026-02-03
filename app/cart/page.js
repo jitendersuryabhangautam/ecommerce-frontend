@@ -21,6 +21,24 @@ export default function CartPage() {
   const { isAuthenticated } = useAuth();
   const [updatingItem, setUpdatingItem] = useState(null);
   const [removingItem, setRemovingItem] = useState(null);
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
+
+  const promoCodes = [
+    { code: "SAVE10", type: "percent", value: 10, label: "10% off" },
+    { code: "FLAT100", type: "flat", value: 100, label: "₹100 off" },
+    { code: "FREESHIP", type: "shipping", value: 0, label: "Free shipping" },
+  ];
+
+  const handleApplyPromo = (code) => {
+    const trimmed = (code || "").trim().toUpperCase();
+    const matched = promoCodes.find((promo) => promo.code === trimmed);
+    if (!matched) {
+      setAppliedPromo(null);
+      return;
+    }
+    setAppliedPromo(matched);
+  };
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -235,17 +253,37 @@ export default function CartPage() {
                 <span className="font-medium">{formatCurrency(cartTotal)}</span>
               </div>
 
+              {appliedPromo && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">
+                    Promo ({appliedPromo.code})
+                  </span>
+                  <span className="font-medium text-green-600">
+                    -
+                    {formatCurrency(
+                      appliedPromo.type === "percent"
+                        ? (cartTotal * appliedPromo.value) / 100
+                        : appliedPromo.type === "flat"
+                        ? appliedPromo.value
+                        : 0
+                    )}
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-medium">
-                  {cartTotal > 50 ? "Free" : formatCurrency(5)}
+                  {appliedPromo?.type === "shipping" || cartTotal > 499
+                    ? "Free"
+                    : formatCurrency(50)}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
+                <span className="text-gray-600">GST (18%)</span>
                 <span className="font-medium">
-                  {formatCurrency(cartTotal * 0.08)}
+                  {formatCurrency(cartTotal * 0.18)}
                 </span>
               </div>
 
@@ -254,11 +292,22 @@ export default function CartPage() {
                   <span>Total</span>
                   <span>
                     {formatCurrency(
-                      cartTotal + (cartTotal > 50 ? 0 : 5) + cartTotal * 0.08
+                      cartTotal +
+                        (appliedPromo?.type === "shipping" || cartTotal > 499
+                          ? 0
+                          : 50) +
+                        cartTotal * 0.18 -
+                        (appliedPromo
+                          ? appliedPromo.type === "percent"
+                            ? (cartTotal * appliedPromo.value) / 100
+                            : appliedPromo.type === "flat"
+                            ? appliedPromo.value
+                            : 0
+                          : 0)
                     )}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Including VAT</p>
+                <p className="text-sm text-gray-500 mt-1">Including GST</p>
               </div>
             </div>
 
@@ -281,15 +330,31 @@ export default function CartPage() {
             {/* Promo Code */}
             <div className="mt-6">
               <h3 className="text-sm font-medium text-gray-900 mb-2">
-                Have a promo code?
+                Promo Codes
               </h3>
-              <div className="flex">
+              <div className="flex flex-wrap gap-2">
+                {promoCodes.map((promo) => (
+                  <button
+                    key={promo.code}
+                    onClick={() => handleApplyPromo(promo.code)}
+                    className="px-3 py-1.5 border border-gray-200 text-sm hover:border-[rgba(255,63,108,0.4)] hover:text-brand transition"
+                  >
+                    {promo.code} • {promo.label}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 flex">
                 <input
                   type="text"
                   placeholder="Enter code"
-                  className="flex-1 border border-r-0 border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent"
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value)}
+                  className="flex-1 border border-r-0 border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.6)] focus:border-transparent"
                 />
-                <button className="bg-gray-800 text-white px-4 py-2 rounded-r-lg hover:bg-gray-900">
+                <button
+                  onClick={() => handleApplyPromo(promoInput)}
+                  className="bg-gray-800 text-white px-4 py-2 hover:bg-gray-900"
+                >
                   Apply
                 </button>
               </div>
