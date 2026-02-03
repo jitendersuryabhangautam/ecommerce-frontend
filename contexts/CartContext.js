@@ -33,6 +33,11 @@ export const CartProvider = ({ children }) => {
       setCart(response.data.data);
       setCartCount(response.data.data?.items?.length || 0);
     } catch (error) {
+      if (error.response?.status === 404) {
+        setCart({ items: [] });
+        setCartCount(0);
+        return;
+      }
       console.error("Failed to fetch cart:", error);
     } finally {
       setLoading(false);
