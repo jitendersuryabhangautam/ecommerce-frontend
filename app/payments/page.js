@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { paymentService } from "@/services/paymentService";
@@ -33,7 +33,7 @@ const statusIcons = {
   refunded: DollarSign,
 };
 
-export default function PaymentsPage() {
+function PaymentsPageContent() {
   const { user, isAuthenticated } = useAuth();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -342,6 +342,20 @@ export default function PaymentsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PaymentsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">
+          <LoadingSpinner size="large" />
+        </div>
+      }
+    >
+      <PaymentsPageContent />
+    </Suspense>
   );
 }
 
