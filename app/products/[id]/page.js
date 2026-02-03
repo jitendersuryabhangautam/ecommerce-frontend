@@ -10,8 +10,6 @@ import {
   Truck,
   Shield,
   RotateCcw,
-  ChevronLeft,
-  ChevronRight,
   Star,
 } from "lucide-react";
 import { formatCurrency, getProductImage } from "@/utils/helpers";
@@ -78,7 +76,7 @@ export default function ProductDetailPage() {
   ];
 
   const features = [
-    { icon: Truck, text: "Free shipping on orders over ?499" },
+    { icon: Truck, text: "Free shipping on orders over ₹499" },
     { icon: RotateCcw, text: "30-day return policy" },
     { icon: Shield, text: "2-year warranty" },
   ];
@@ -104,51 +102,19 @@ export default function ProductDetailPage() {
 
   return (
     <div className="bg-transparent py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 bg-white rounded-2xl border border-gray-100 p-6 lg:p-10 shadow-sm">
+      <div className="w-full max-w-none px-4 sm:px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-10 bg-white border border-gray-100 p-6 lg:p-10 shadow-sm">
           {/* Image gallery */}
-          <div className="space-y-4">
-            {/* Main image */}
-            <div className="relative h-96 w-full overflow-hidden rounded-2xl bg-gray-100">
-              <Image
-                src={images[selectedImage]}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-
-              {/* Navigation arrows */}
-              <button
-                onClick={() =>
-                  setSelectedImage(
-                    (prev) => (prev - 1 + images.length) % images.length
-                  )
-                }
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() =>
-                  setSelectedImage((prev) => (prev + 1) % images.length)
-                }
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Thumbnails */}
-            <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-[120px_1fr] gap-4 max-h-[560px]">
+            <div className="flex flex-col gap-3">
               {images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative h-20 w-full overflow-hidden rounded-xl ${
+                  className={`relative w-full overflow-hidden bg-gray-100 aspect-[3/4] ${
                     selectedImage === index
                       ? "ring-2 ring-[rgba(255,63,108,0.6)]"
-                      : ""
+                      : "hover:shadow-sm"
                   }`}
                 >
                   <Image
@@ -156,10 +122,21 @@ export default function ProductDetailPage() {
                     alt={`${product.name} view ${index + 1}`}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 25vw, 12.5vw"
+                    sizes="88px"
                   />
                 </button>
               ))}
+            </div>
+            <div className="relative w-full bg-gray-100 overflow-hidden">
+              <div className="aspect-[3/4] w-full">
+                <Image
+                  src={images[selectedImage]}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
             </div>
           </div>
 

@@ -7,7 +7,7 @@ import { formatCurrency, getProductImage } from "@/utils/helpers";
 import { useCart } from "@/contexts/CartContext";
 import { useState } from "react";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, imageHeightClass = "h-64" }) {
   const { cart, addToCart, updateCartItem, removeFromCart } = useCart();
   const [addingToCart, setAddingToCart] = useState(false);
   const [updatingItem, setUpdatingItem] = useState(false);
@@ -55,7 +55,7 @@ export default function ProductCard({ product }) {
         href={`/products/${product.id}`}
         aria-label={`View ${product.name}`}
       >
-        <div className="relative h-52 w-full overflow-hidden bg-gray-100">
+        <div className={`relative ${imageHeightClass} w-full overflow-hidden bg-gray-100`}>
           <Image
             src={imageUrl}
             alt={product.name}

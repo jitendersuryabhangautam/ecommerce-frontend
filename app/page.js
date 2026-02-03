@@ -138,6 +138,7 @@ export default function HomePage() {
           products={featuredProducts}
           loading={loading}
           emptyMessage="No featured products available"
+          imageHeightClass="h-72"
         />
       </section>
 

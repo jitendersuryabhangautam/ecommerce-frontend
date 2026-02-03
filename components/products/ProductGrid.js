@@ -13,6 +13,7 @@ export default function ProductGrid({
   loading,
   emptyMessage = "No products found",
   viewMode = "grid",
+  imageHeightClass = "h-64",
 }) {
   const { cart, addToCart, updateCartItem, removeFromCart } = useCart();
   const [addingId, setAddingId] = useState(null);
@@ -22,7 +23,7 @@ export default function ProductGrid({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {[...Array(8)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="bg-gray-200 rounded-lg h-48"></div>
+            <div className={`bg-gray-200 ${imageHeightClass}`}></div>
             <div className="mt-4 space-y-2">
               <div className="h-4 bg-gray-200 rounded"></div>
               <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -178,7 +179,11 @@ export default function ProductGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          imageHeightClass={imageHeightClass}
+        />
       ))}
     </div>
   );
