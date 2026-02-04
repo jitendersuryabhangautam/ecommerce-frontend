@@ -19,8 +19,16 @@ import { useCart } from "@/contexts/CartContext";
 export default function Header({ onMenuClick }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const { cartCount } = useCart();
+  console.log(
+    "Header user role:",
+    user?.role,
+    "isAdmin:",
+    isAdmin,
+    "isAuthenticated:",
+    isAuthenticated
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -41,6 +49,10 @@ export default function Header({ onMenuClick }) {
     { name: "Products", href: "/products", icon: Package },
     { name: "Orders", href: "/orders", icon: CreditCard },
   ];
+
+  if (isAdmin) {
+    navigation.push({ name: "Admin", href: "/admin", icon: User });
+  }
 
   return (
     <header className="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-gray-200">

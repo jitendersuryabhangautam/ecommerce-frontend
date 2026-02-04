@@ -37,8 +37,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const result = await getProfileAction();
+      console.log("Auth init result:", result);
       if (result.success) {
         setUser(result.user);
+        console.log("Auth init user role:", result.user?.role);
       }
       setLoading(false);
     };
@@ -56,9 +58,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
+    console.log("Auth login submit:", email);
     const result = await loginAction(email, password);
     if (result.success) {
       setUser(result.user);
+      console.log("Auth login user role:", result.user?.role);
       toast.success("Login successful!");
       return { success: true };
     }
@@ -67,9 +71,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
+    console.log("Auth register submit:", userData?.email);
     const result = await registerAction(userData);
     if (result.success) {
       setUser(result.user);
+      console.log("Auth register user role:", result.user?.role);
       toast.success("Registration successful!");
       return { success: true };
     }

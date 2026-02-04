@@ -7,7 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
+  console.log("Sidebar user role:", user?.role, "isAdmin:", isAdmin);
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
@@ -72,7 +73,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
             <li className="pt-4 border-t">
               {authNavItems.map((item) => {
-                if (item.adminOnly && user?.role !== "admin") return null;
+                if (item.adminOnly && !isAdmin) return null;
                 const Icon = item.icon;
                 return (
                   <Link
