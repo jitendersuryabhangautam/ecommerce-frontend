@@ -12,7 +12,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import ProductGrid from "@/components/products/ProductGrid";
-import { productService } from "@/services/productService";
+import { getAllProductsAction } from "@/app/actions/productActions";
 import { formatCurrency } from "@/utils/helpers";
 
 export default function HomePage() {
@@ -25,8 +25,8 @@ export default function HomePage() {
 
   const fetchFeaturedProducts = async () => {
     try {
-      const response = await productService.getProducts({ limit: 8 });
-      setFeaturedProducts(response.data.products || []);
+      const response = await getAllProductsAction({ limit: 8 });
+      setFeaturedProducts(response.data?.products || response.products || []);
     } catch (error) {
       console.error("Failed to fetch products:", error);
     } finally {

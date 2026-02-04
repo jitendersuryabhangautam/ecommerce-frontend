@@ -2,7 +2,14 @@
 
 import { createContext, useState, useContext, useEffect } from "react";
 import { toast } from "react-toastify";
-import api from "@/services/api";
+import {
+  fetchCartAction,
+  addToCartAction,
+  updateCartItemAction,
+  removeFromCartAction,
+  clearCartAction,
+  validateCartAction,
+} from "@/app/actions/cartActions";
 import { useAuth } from "./AuthContext";
 
 const CartContext = createContext({});
@@ -29,11 +36,11 @@ export const CartProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      const response = await api.get("/cart");
-      setCart(response.data.data);
-      setCartCount(response.data.data?.items?.length || 0);
+      const response = await fetchCartAction();
+      setCart(response.data);
+      setCartCount(response.data?.items?.length || 0);
     } catch (error) {
-      if (error.response?.status === 404) {
+      if (error.status === 404 || error?.data?.status === 404) {
         setCart({ items: [] });
         setCartCount(0);
         return;
@@ -52,17 +59,13 @@ export const CartProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      const response = await api.post("/cart/items", {
-        product_id: productId,
-        quantity: quantity,
-      });
-
-      setCart(response.data.data);
-      setCartCount(response.data.data?.items?.length || 0);
+      const response = await addToCartAction(productId, quantity);
+      setCart(response.data);
+      setCartCount(response.data?.items?.length || 0);
       toast.success("Added to cart!");
-      return { success: true, cart: response.data.data };
+      return { success: true, cart: response.data };
     } catch (error) {
-      const message = error.response?.data?.message || "Failed to add to cart";
+      const message = error.data?.message || error.message || "Failed to add to cart";
       toast.error(message);
       return { success: false, error: message };
     } finally {
@@ -73,14 +76,13 @@ export const CartProvider = ({ children }) => {
   const updateCartItem = async (itemId, quantity) => {
     try {
       setLoading(true);
-      const response = await api.put(`/cart/items/${itemId}`, { quantity });
-
-      setCart(response.data.data);
-      setCartCount(response.data.data?.items?.length || 0);
+      const response = await updateCartItemAction(itemId, quantity);
+      setCart(response.data);
+      setCartCount(response.data?.items?.length || 0);
       toast.success("Cart updated!");
-      return { success: true, cart: response.data.data };
+      return { success: true, cart: response.data };
     } catch (error) {
-      const message = error.response?.data?.message || "Failed to update cart";
+      const message = error.data?.message || error.message || "Failed to update cart";
       toast.error(message);
       return { success: false, error: message };
     } finally {
@@ -91,14 +93,13 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (itemId) => {
     try {
       setLoading(true);
-      const response = await api.delete(`/cart/items/${itemId}`);
-
-      setCart(response.data.data);
-      setCartCount(response.data.data?.items?.length || 0);
+      const response = await removeFromCartAction(itemId);
+      setCart(response.data);
+      setCartCount(response.data?.items?.length || 0);
       toast.success("Item removed from cart");
-      return { success: true, cart: response.data.data };
+      return { success: true, cart: response.data };
     } catch (error) {
-      const message = error.response?.data?.message || "Failed to remove item";
+      const message = error.data?.message || error.message || "Failed to remove item";
       toast.error(message);
       return { success: false, error: message };
     } finally {
@@ -109,14 +110,14 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     try {
       setLoading(true);
-      await api.delete("/cart");
-
-      setCart(null);
-      setCartCount(0);
-      toast.success("Cart cleared");
-      return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || "Failed to clear cart";
+      const result = await clearCartAction();
+      if (result.success) {
+        setCart(null);
+        setCartCount(0);
+        toast.success("Cart cleared");
+        return { success: true };
+      }
+      const message = result.error || "Failed to clear cart";
       toast.error(message);
       return { success: false, error: message };
     } finally {
@@ -126,16 +127,16 @@ export const CartProvider = ({ children }) => {
 
   const validateCart = async () => {
     try {
-      const response = await api.get("/cart/validate");
+      const response = await validateCartAction();
       return {
         success: true,
-        valid: response.data.data.valid,
-        errors: response.data.data.errors,
+        valid: response.data.valid,
+        errors: response.data.errors,
       };
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.message || "Validation failed",
+        error: error.data?.message || error.message || "Validation failed",
       };
     }
   };

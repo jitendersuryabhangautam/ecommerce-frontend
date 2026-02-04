@@ -3,7 +3,10 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { paymentService } from "@/services/paymentService";
+import {
+  getPaymentByOrderAction,
+  getPaymentHistoryAction,
+} from "@/app/actions/paymentActions";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { formatCurrency } from "@/utils/helpers";
@@ -52,7 +55,7 @@ function PaymentsPageContent() {
     try {
       setLoading(true);
       if (orderIdFilter) {
-        const response = await paymentService.getPaymentByOrder(orderIdFilter);
+        const response = await getPaymentByOrderAction(orderIdFilter);
         const paymentData =
           response?.data?.data ||
           response?.data ||
@@ -62,7 +65,7 @@ function PaymentsPageContent() {
         return;
       }
 
-      const response = await paymentService.getPaymentHistory();
+      const response = await getPaymentHistoryAction();
       const extracted =
         response?.data?.payments ||
         response?.payments ||
@@ -86,7 +89,7 @@ function PaymentsPageContent() {
     }
     try {
       setViewLoadingId(orderId);
-      const response = await paymentService.getPaymentByOrder(orderId);
+      const response = await getPaymentByOrderAction(orderId);
       const paymentData =
         response?.data?.data ||
         response?.data ||

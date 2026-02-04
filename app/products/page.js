@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Filter, Grid, List, ChevronDown } from "lucide-react";
 import ProductGrid from "@/components/products/ProductGrid";
-import { productService } from "@/services/productService";
+import { getAllProductsAction } from "@/app/actions/productActions";
 import { CATEGORIES } from "@/utils/constants";
 
 function ProductsPageContent() {
@@ -47,9 +47,10 @@ function ProductsPageContent() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await productService.getProducts(filters);
-      setProducts(response.data.products || []);
-      setTotalProducts(response.data.meta?.total || 0);
+      const response = await getAllProductsAction(filters);
+      const payload = response.data || response;
+      setProducts(payload.products || []);
+      setTotalProducts(payload.meta?.total || 0);
     } catch (error) {
       console.error("Failed to fetch products:", error);
     } finally {

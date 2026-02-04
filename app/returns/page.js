@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { returnService, orderService } from "@/services/api";
+import { getOrdersAction } from "@/app/actions/orderActions";
+import {
+  getUserReturnsAction,
+  createReturnAction,
+} from "@/app/actions/returnActions";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { formatCurrency } from "@/utils/helpers";
 import {
@@ -63,8 +67,8 @@ export default function ReturnsPage() {
     try {
       setLoading(true);
       const [returnsData, ordersData] = await Promise.all([
-        returnService.getUserReturns(),
-        orderService.getUserOrders(),
+        getUserReturnsAction(),
+        getOrdersAction(),
       ]);
       // console.log("Fetched Returns Data:", returnsData);
       // console.log("Fetched Orders Data:", ordersData);
@@ -101,7 +105,7 @@ export default function ReturnsPage() {
 
   const submitReturnRequest = async () => {
     try {
-      await returnService.createReturn({
+      await createReturnAction({
         order_id: createDialog.orderId,
         reason: createDialog.reason,
       });

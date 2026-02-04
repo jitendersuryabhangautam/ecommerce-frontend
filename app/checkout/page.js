@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { Lock, CreditCard, Truck, Shield } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderService } from "@/services/orderService";
+import { createOrderAction } from "@/app/actions/orderActions";
 import { formatCurrency } from "@/utils/helpers";
 import { PAYMENT_METHODS, COUNTRIES } from "@/utils/constants";
 
@@ -123,7 +123,7 @@ export default function CheckoutPage() {
       // console.log("Order creation payload:", orderData);
 
       // Create order
-      const orderResponse = await orderService.createOrder(orderData);
+      const orderResponse = await createOrderAction(orderData);
       // console.log("Full order response:", orderResponse);
 
       // Handle different response structures
@@ -158,8 +158,8 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Checkout error:", error);
       const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
+        error.data?.message ||
+        error.data?.error ||
         error.message ||
         "Failed to place order";
       toast.error(errorMessage);

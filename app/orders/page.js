@@ -14,8 +14,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderService } from "@/services/orderService";
-import { returnService } from "@/services/returnService";
+import { getOrdersAction } from "@/app/actions/orderActions";
+import { getUserReturnsAction } from "@/app/actions/returnActions";
 import { formatCurrency, formatDate } from "@/utils/helpers";
 import {
   ORDER_STATUS,
@@ -57,8 +57,8 @@ export default function OrdersPage() {
 
       // console.log("Orders fetch params:", params);
       const [ordersResponse, returnsResponse] = await Promise.all([
-        orderService.getOrders(params),
-        returnService.getUserReturns(),
+        getOrdersAction(params),
+        getUserReturnsAction(),
       ]);
       // console.log("Orders API response:", ordersResponse);
       // console.log("Returns API response:", returnsResponse);
@@ -109,7 +109,7 @@ export default function OrdersPage() {
       );
     } catch (error) {
       console.error("Failed to fetch orders:", error);
-      console.error("Error response:", error.response?.data);
+      console.error("Error response:", error.data);
     } finally {
       setLoading(false);
     }

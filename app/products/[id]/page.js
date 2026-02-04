@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { formatCurrency, getProductImage } from "@/utils/helpers";
 import { useCart } from "@/contexts/CartContext";
-import { productService } from "@/services/productService";
+import { getProductByIdAction } from "@/app/actions/productActions";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function ProductDetailPage() {
@@ -38,8 +38,8 @@ export default function ProductDetailPage() {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const response = await productService.getProduct(params.id);
-      setProduct(response.data);
+      const response = await getProductByIdAction(params.id);
+      setProduct(response.data || response);
     } catch (error) {
       console.error("Failed to fetch product:", error);
     } finally {

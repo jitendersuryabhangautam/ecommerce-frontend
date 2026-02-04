@@ -9,7 +9,14 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import api from "@/services/api";
+import {
+  loginAction,
+  registerAction,
+  logoutAction,
+  getProfileAction,
+  updateProfileAction,
+  changePasswordAction,
+} from "@/app/actions/authActions";
 
 const AuthContext = createContext({});
 
@@ -20,28 +27,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
+  const logout = useCallback(async () => {
+    await logoutAction();
     setUser(null);
     router.push("/login");
     toast.info("Logged out successfully");
   }, [router]);
 
   useEffect(() => {
-    const initializeAuth = () => {
-      const token = localStorage.getItem("access_token");
-      const storedUser = localStorage.getItem("user");
-
-      if (token && storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
-        } catch (error) {
-          console.error("Failed to parse user data:", error);
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("user");
-        }
+    const initializeAuth = async () => {
+      const result = await getProfileAction();
+      if (result.success) {
+        setUser(result.user);
       }
       setLoading(false);
     };
@@ -50,74 +47,55 @@ export const AuthProvider = ({ children }) => {
   }, []); // Empty dependency array - runs only once on mount
 
   const fetchProfile = async () => {
-    try {
-      const response = await api.get("/users/profile");
-      setUser(response.data.data);
-      localStorage.setItem("user", JSON.stringify(response.data.data));
-    } catch (error) {
+    const result = await getProfileAction();
+    if (result.success) {
+      setUser(result.user);
+    } else {
       logout();
     }
   };
 
   const login = async (email, password) => {
-    try {
-      const response = await api.post("/auth/login", { email, password });
-      const { user, access_token } = response.data.data;
-
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setUser(user);
+    const result = await loginAction(email, password);
+    if (result.success) {
+      setUser(result.user);
       toast.success("Login successful!");
       return { success: true };
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
-      return { success: false, error: error.response?.data?.message };
     }
+    toast.error(result.error || "Login failed");
+    return { success: false, error: result.error };
   };
 
   const register = async (userData) => {
-    try {
-      const response = await api.post("/auth/register", userData);
-      const { user, access_token } = response.data.data;
-
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setUser(user);
+    const result = await registerAction(userData);
+    if (result.success) {
+      setUser(result.user);
       toast.success("Registration successful!");
       return { success: true };
-    } catch (error) {
-      toast.error(error.response?.data?.error || "Registration failed");
-      return { success: false, error: error.response?.data?.message };
     }
+    toast.error(result.error || "Registration failed");
+    return { success: false, error: result.error };
   };
 
   const updateProfile = async (profileData) => {
-    try {
-      const response = await api.put("/users/profile", profileData);
-      setUser(response.data.data);
-      localStorage.setItem("user", JSON.stringify(response.data.data));
+    const result = await updateProfileAction(profileData);
+    if (result.success) {
+      setUser(result.user);
       toast.success("Profile updated successfully!");
       return { success: true };
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Update failed");
-      return { success: false, error: error.response?.data?.message };
     }
+    toast.error(result.error || "Update failed");
+    return { success: false, error: result.error };
   };
 
   const changePassword = async (currentPassword, newPassword) => {
-    try {
-      await api.put("/users/change-password", {
-        current_password: currentPassword,
-        new_password: newPassword,
-      });
+    const result = await changePasswordAction(currentPassword, newPassword);
+    if (result.success) {
       toast.success("Password changed successfully!");
       return { success: true };
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Password change failed");
-      return { success: false, error: error.response?.data?.message };
     }
+    toast.error(result.error || "Password change failed");
+    return { success: false, error: result.error };
   };
 
   const isAuthenticated = !!user;

@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { returnService } from "@/services/api";
+import {
+  getAllReturnsAction,
+  processReturnAction,
+} from "@/app/actions/returnActions";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   CheckCircle,
@@ -48,7 +51,7 @@ export default function AdminReturnsPage() {
   const fetchReturns = async () => {
     try {
       setLoading(true);
-      const data = await returnService.getAllReturns();
+      const data = await getAllReturnsAction();
       setReturns(data.returns || []);
     } catch (error) {
       console.error("Error fetching returns:", error);
@@ -83,7 +86,7 @@ export default function AdminReturnsPage() {
         refund_amount: action === "approve" ? parseFloat(refundAmount) || 0 : 0,
       };
 
-      await returnService.processReturn(returnId, payload);
+      await processReturnAction(returnId, payload);
       showAlert(
         `Return ${action === "approve" ? "approved" : "rejected"} successfully`,
         "success"

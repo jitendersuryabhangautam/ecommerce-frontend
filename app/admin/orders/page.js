@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderService } from "@/services/api";
+import {
+  getAllOrdersAction,
+  updateOrderStatusAction,
+} from "@/app/actions/orderActions";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   CheckCircle,
@@ -55,7 +58,7 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const data = await orderService.getAllOrders();
+      const data = await getAllOrdersAction();
       setOrders(data.orders || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -68,7 +71,7 @@ export default function AdminOrdersPage() {
     if (isAuthenticated && user?.role === "admin") {
       fetchOrders();
     }
-  }, [isAuthenticated, user, fetch]);
+  }, [isAuthenticated, user]);
 
   const showAlert = (message, type = "success") => {
     setAlert({ show: true, message, type });
@@ -85,7 +88,7 @@ export default function AdminOrdersPage() {
 
   const updateOrderStatus = async () => {
     try {
-      await orderService.updateOrderStatus(statusDialog.orderId, {
+      await updateOrderStatusAction(statusDialog.orderId, {
         status: newStatus,
       });
       showAlert("Order status updated successfully", "success");

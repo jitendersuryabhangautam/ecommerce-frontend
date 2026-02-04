@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderService } from "@/services/orderService";
-import { returnService } from "@/services/returnService";
+import { getOrderAction } from "@/app/actions/orderActions";
+import { createReturnAction } from "@/app/actions/returnActions";
 import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { toast } from "react-hot-toast";
@@ -34,11 +34,13 @@ function CreateReturnPageContent() {
   const fetchOrderDetails = async () => {
     try {
       setLoading(true);
-      const response = await orderService.getOrder(orderId);
-      setOrder(response.data);
+      const response = await getOrderAction(orderId);
+      setOrder(response.data || response);
 
       // Pre-select all items
-      setSelectedItems(response.data.items?.map((item) => item.id) || []);
+      setSelectedItems(
+        (response.data || response).items?.map((item) => item.id) || []
+      );
     } catch (error) {
       console.error("Failed to fetch order:", error);
       toast.error("Failed to load order details");
@@ -81,7 +83,7 @@ function CreateReturnPageContent() {
       // console.log("Submitting return data:", returnData);
 
       // Call your return service
-      const response = await returnService.createReturn(returnData);
+      const response = await createReturnAction(returnData);
       // console.log("Return response:", response);
 
       toast.success("Return request submitted successfully!");
@@ -94,9 +96,9 @@ function CreateReturnPageContent() {
       }
     } catch (error) {
       console.error("Failed to submit return:", error);
-      console.error("Error details:", error.response?.data);
+      console.error("Error details:", error.data);
       toast.error(
-        error.response?.data?.message || "Failed to submit return request"
+        error.data?.message || error.message || "Failed to submit return request"
       );
     } finally {
       setSubmitting(false);

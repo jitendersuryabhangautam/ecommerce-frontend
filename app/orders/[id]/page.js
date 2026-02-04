@@ -23,8 +23,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderService } from "@/services/orderService";
-import { returnService } from "@/services/returnService";
+import { getOrderAction, cancelOrderAction } from "@/app/actions/orderActions";
+import { getUserReturnsAction } from "@/app/actions/returnActions";
 import { formatCurrency, formatDate, getProductImage } from "@/utils/helpers";
 import {
   ORDER_STATUS,
@@ -57,8 +57,8 @@ export default function OrderDetailPage() {
     try {
       setLoading(true);
       const [orderResponse, returnsResponse] = await Promise.all([
-        orderService.getOrder(params.id),
-        returnService.getUserReturns(),
+        getOrderAction(params.id),
+        getUserReturnsAction(),
       ]);
       // console.log("Order detail API response:", orderResponse);
       // console.log("Order detail returns response:", returnsResponse);
@@ -99,11 +99,11 @@ export default function OrderDetailPage() {
 
     try {
       setCanceling(true);
-      await orderService.cancelOrder(params.id);
+      await cancelOrderAction(params.id);
       toast.success("Order cancelled successfully");
       fetchOrder(); // Refresh order data
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to cancel order");
+      toast.error(error.data?.message || error.message || "Failed to cancel order");
     } finally {
       setCanceling(false);
     }

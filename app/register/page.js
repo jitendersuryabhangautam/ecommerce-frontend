@@ -71,14 +71,17 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Register submit:", formData);
 
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
+      console.warn("Register validation errors:", validationErrors);
       setErrors(validationErrors);
       return;
     }
 
     setLoading(true);
+    console.log("Register calling auth.register...");
     const result = await register({
       email: formData.email,
       password: formData.password,
@@ -86,6 +89,7 @@ export default function RegisterPage() {
       last_name: formData.last_name,
     });
     setLoading(false);
+    console.log("Register result:", result);
 
     if (result.success) {
       router.push("/");

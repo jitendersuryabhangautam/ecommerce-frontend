@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { returnService } from "@/services/api";
+import { getReturnByIdAction } from "@/app/actions/returnActions";
 import {
   ArrowLeft,
   Receipt,
@@ -55,7 +55,7 @@ export default function ReturnDetailPage() {
   const fetchReturnDetail = async () => {
     try {
       setLoading(true);
-      const data = await returnService.getReturnById(id);
+      const data = await getReturnByIdAction(id);
       setReturnItem(data.return || data);
     } catch (error) {
       console.error("Error fetching return details:", error);
