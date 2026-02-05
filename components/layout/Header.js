@@ -57,9 +57,9 @@ export default function Header({ onMenuClick }) {
   return (
     <header className="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex flex-col gap-3 py-3 lg:flex-row lg:items-center lg:justify-between lg:h-16 lg:py-0">
           {/* Left side - Logo and Navigation */}
-          <div className="flex items-center">
+          <div className="flex items-center justify-between lg:justify-start w-full lg:w-auto">
             <button
               onClick={onMenuClick}
               className="p-2 rounded-md text-gray-700 lg:hidden"
@@ -99,14 +99,14 @@ export default function Header({ onMenuClick }) {
           </div>
 
           {/* Center - Search */}
-          <div className="flex-1 max-w-2xl mx-4">
+          <div className="w-full lg:flex-1 lg:max-w-2xl lg:mx-4 min-w-0">
             <form onSubmit={handleSearch} className="relative">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="search"
                   placeholder="Search products..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.25)] focus:border-transparent"
+                  className="w-full min-w-0 pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.25)] focus:border-transparent"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -124,7 +124,7 @@ export default function Header({ onMenuClick }) {
           </div>
 
           {/* Right side - User menu and Cart */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-end gap-3 w-full lg:w-auto">
             {/* Cart */}
             <Link
               href="/cart"
