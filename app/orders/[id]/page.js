@@ -287,12 +287,12 @@ export default function OrderDetailPage() {
   const returnStatus = returnItem?.status || RETURN_STATUS.REQUESTED;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <Link
                 href="/orders"
                 className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] mr-4 transition-colors"
@@ -304,17 +304,17 @@ export default function OrderDetailPage() {
                 Order Details
               </h1>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={handlePrintInvoice}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto"
               >
                 <Printer className="h-4 w-4 mr-2" />
                 Print
               </button>
               <button
                 onClick={handleDownloadInvoice}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Invoice
@@ -333,7 +333,7 @@ export default function OrderDetailPage() {
             {/* Order Status Card */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                <div className="flex items-center">
+                <div className="flex flex-wrap items-center gap-2">
                   <div
                     className={`${statusColorClass} px-4 py-2 rounded-full flex items-center`}
                   >
@@ -342,7 +342,7 @@ export default function OrderDetailPage() {
                   </div>
                   {returnItem && (
                     <div
-                      className={`ml-3 px-4 py-2 rounded-full flex items-center ${returnStatusColors[returnStatus]}`}
+                      className={`px-4 py-2 rounded-full flex items-center ${returnStatusColors[returnStatus]}`}
                     >
                       {(returnStatus === RETURN_STATUS.REJECTED && (
                         <AlertTriangle className="h-5 w-5 mr-2" />
@@ -353,7 +353,7 @@ export default function OrderDetailPage() {
                     </div>
                   )}
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(order.total_amount)}
                   </p>
@@ -477,13 +477,14 @@ export default function OrderDetailPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-8 pt-8 border-t border-gray-200 flex flex-wrap gap-3">
+              <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col sm:flex-row flex-wrap gap-3">
                 {canCancelOrder && (
                   <Button
                     variant="danger"
                     onClick={handleCancelOrder}
                     loading={canceling}
                     disabled={canceling}
+                    className="w-full sm:w-auto"
                   >
                     <XCircle className="h-4 w-4 mr-2" />
                     Cancel Order
@@ -496,18 +497,27 @@ export default function OrderDetailPage() {
                     onClick={handleCreateReturn}
                     loading={returning}
                     disabled={returning}
+                    className="w-full sm:w-auto"
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Return Items
                   </Button>
                 )}
 
-                <Button variant="outline" onClick={handleContactSupport}>
+                <Button
+                  variant="outline"
+                  onClick={handleContactSupport}
+                  className="w-full sm:w-auto"
+                >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Contact Support
                 </Button>
 
-                <Button variant="outline" onClick={handleViewPayment}>
+                <Button
+                  variant="outline"
+                  onClick={handleViewPayment}
+                  className="w-full sm:w-auto"
+                >
                   <CreditCard className="h-4 w-4 mr-2" />
                   View Payment
                 </Button>
@@ -519,13 +529,13 @@ export default function OrderDetailPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-6">
                 Order Items
               </h2>
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {order.items?.map((item) => (
                   <div
                     key={item.id}
-                    className="flex flex-col sm:flex-row items-start sm:items-center border-b pb-6 last:border-0 last:pb-0 gap-4"
+                    className="flex flex-col sm:flex-row items-start sm:items-center border-b pb-5 sm:pb-6 last:border-0 last:pb-0 gap-4"
                   >
-                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gray-200">
+                    <div className="h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <Image
                         src={getProductImage(item.product?.image_url)}
                         alt={item.product?.name}
@@ -536,7 +546,7 @@ export default function OrderDetailPage() {
                       />
                     </div>
                     <div className="flex-1 w-full">
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-4">
                         <div className="flex-1">
                           <Link
                             href={`/products/${item.product_id}`}
@@ -544,18 +554,20 @@ export default function OrderDetailPage() {
                           >
                             {item.product?.name}
                           </Link>
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
                             SKU: {item.product?.sku}
                           </p>
-                          <p className="text-sm text-gray-500">
-                            Quantity: {item.quantity}
-                          </p>
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500">
+                            <span>Qty: {item.quantity}</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span>{formatCurrency(item.price_at_time)} each</span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-medium text-gray-900">
+                        <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
+                          <p className="font-semibold text-gray-900">
                             {formatCurrency(item.price_at_time * item.quantity)}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-xs sm:text-sm text-gray-500 sm:hidden">
                             {formatCurrency(item.price_at_time)} each
                           </p>
                         </div>
@@ -601,7 +613,7 @@ export default function OrderDetailPage() {
             {/* Shipping Information */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <Truck className="h-5 w-5 text-brand mr-3" />
+                <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-brand mr-3" />
                 <h2 className="text-lg font-bold text-gray-900">
                   Shipping Information
                 </h2>
@@ -645,7 +657,7 @@ export default function OrderDetailPage() {
             {/* Billing Information */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center mb-4">
-                <CreditCard className="h-5 w-5 text-brand mr-3" />
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-brand mr-3" />
                 <h2 className="text-lg font-bold text-gray-900">
                   Billing Information
                 </h2>
@@ -699,7 +711,7 @@ export default function OrderDetailPage() {
                   onClick={handleContactSupport}
                   className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors w-full text-left"
                 >
-                  <Phone className="h-5 w-5 text-brand mr-3" />
+                  <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Call Us</p>
                     <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
@@ -710,7 +722,7 @@ export default function OrderDetailPage() {
                   onClick={handleContactSupport}
                   className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors w-full text-left"
                 >
-                  <Mail className="h-5 w-5 text-brand mr-3" />
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Email Us</p>
                     <p className="text-sm text-gray-600">
@@ -723,7 +735,7 @@ export default function OrderDetailPage() {
                   onClick={handleContactSupport}
                   className="flex items-center p-3 bg-brand-soft rounded-lg hover:bg-brand-soft transition-colors w-full text-left"
                 >
-                  <MessageCircle className="h-5 w-5 text-brand mr-3" />
+                  <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-brand mr-3" />
                   <div>
                     <p className="font-medium text-gray-900">Live Chat</p>
                     <p className="text-sm text-gray-600">Available 24/7</p>
@@ -765,17 +777,17 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Related Actions */}
-        <div className="mt-12">
+        <div className="mt-10 sm:mt-12">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
             Related Actions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <Link
               href="/products"
               className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow block"
             >
               <div className="flex items-center mb-4">
-                <Home className="h-8 w-8 text-brand mr-4" />
+                <Home className="h-6 w-6 sm:h-8 sm:w-8 text-brand mr-4" />
                 <h3 className="text-lg font-bold text-gray-900">
                   Continue Shopping
                 </h3>
@@ -790,7 +802,7 @@ export default function OrderDetailPage() {
               className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow block"
             >
               <div className="flex items-center mb-4">
-                <Package className="h-8 w-8 text-brand mr-4" />
+                <Package className="h-6 w-6 sm:h-8 sm:w-8 text-brand mr-4" />
                 <h3 className="text-lg font-bold text-gray-900">
                   View All Orders
                 </h3>
@@ -805,7 +817,7 @@ export default function OrderDetailPage() {
               className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow text-left w-full"
             >
               <div className="flex items-center mb-4">
-                <MessageCircle className="h-8 w-8 text-brand mr-4" />
+                <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8 text-brand mr-4" />
                 <h3 className="text-lg font-bold text-gray-900">
                   Contact Support
                 </h3>

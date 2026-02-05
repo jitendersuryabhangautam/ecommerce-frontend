@@ -261,19 +261,21 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="py-8">
+    <div className="py-6 sm:py-8">
       {/* Header */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-6 sm:mb-8 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Dashboard
+          </h1>
           <p className="text-gray-600 mt-2">Welcome back, {user?.first_name}!</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <label className="text-sm text-gray-600">Range</label>
           <select
             value={rangeDays}
             onChange={(e) => setRangeDays(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -291,7 +293,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           const Wrapper = stat.href ? "a" : "div";
@@ -320,7 +322,7 @@ export default function AdminDashboard() {
                   )}
                 </div>
                 <div className={`${stat.color} p-3 rounded-lg`}>
-                  <Icon className="h-6 w-6 text-white" />
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
               </div>
             </Wrapper>
@@ -329,9 +331,9 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
@@ -343,7 +345,7 @@ export default function AdminDashboard() {
                 <div
                   className={`inline-flex p-3 rounded-lg mb-4 ${action.color}`}
                 >
-                  <Icon className="h-6 w-6" />
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">
                   {action.title}
@@ -355,18 +357,18 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Recent Orders */}
         <div className="bg-white rounded-lg shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Recent Orders
                 </h2>
                 <p className="text-sm text-gray-600">Latest customer orders</p>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <select
                   value={recentLimit}
                   onChange={(e) => {
@@ -396,7 +398,51 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="md:hidden divide-y divide-gray-200">
+            {visibleRecentOrders.map((order) => (
+              <div key={order.id} className="px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {order.orderNumber}
+                    </p>
+                    <p className="text-xs text-gray-500">{order.customer}</p>
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                      order.status
+                    )}`}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-sm text-gray-700">
+                  <span className="text-xs text-gray-500">
+                    {formatDate(order.date)}
+                  </span>
+                  <span className="font-semibold text-gray-900">
+                    {formatCurrency(order.amount)}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center gap-3 text-sm">
+                  <a
+                    href={`/orders/${order.id}`}
+                    className="text-brand hover:text-[rgb(var(--brand-primary-dark))]"
+                  >
+                    View
+                  </a>
+                  <a
+                    href={`/admin/orders?order_id=${order.id}`}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    Manage
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -483,7 +529,7 @@ export default function AdminDashboard() {
             </table>
           </div>
           {recentTotalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+            <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex justify-end">
               <div className="flex items-center space-x-2 text-sm">
                 <button
                   onClick={() => setRecentPage((p) => Math.max(1, p - 1))}
@@ -512,14 +558,14 @@ export default function AdminDashboard() {
         {/* Top Products */}
         <div className="bg-white rounded-lg shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Top Products
                 </h2>
                 <p className="text-sm text-gray-600">Best selling products</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <select
                   value={topLimit}
                   onChange={(e) => {
@@ -543,24 +589,53 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="divide-y divide-gray-200">
+          <div className="md:hidden divide-y divide-gray-200">
+            {visibleTopProducts.map((product) => (
+              <div key={product.id} className="px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-gray-500">{product.category}</p>
+                  </div>
+                  <button className="text-gray-400 hover:text-gray-600">
+                    <MoreVertical className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-sm">
+                  <span className="font-semibold text-gray-900">
+                    {formatCurrency(product.price)}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {product.sales} sales
+                  </span>
+                </div>
+                <div className="mt-1 text-xs text-gray-500">
+                  <span
+                    className={`font-medium ${
+                      product.stock > 10 ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {product.stock} in stock
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block divide-y divide-gray-200">
             {visibleTopProducts.map((product) => (
               <div key={product.id} className="px-6 py-4 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center">
-                      <div className="ml-4">
-                        <h3 className="text-sm font-medium text-gray-900">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {product.category}
-                        </p>
-                      </div>
-                    </div>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">{product.category}</p>
                   </div>
-                  <div className="flex items-center space-x-8">
-                    <div className="text-right">
+                  <div className="flex flex-wrap items-center gap-6 sm:gap-8">
+                    <div>
                       <p className="text-sm font-medium text-gray-900">
                         {formatCurrency(product.price)}
                       </p>
@@ -568,7 +643,7 @@ export default function AdminDashboard() {
                         {product.sales} sales
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div>
                       <p
                         className={`text-sm font-medium ${
                           product.stock > 10 ? "text-green-600" : "text-red-600"
@@ -587,7 +662,7 @@ export default function AdminDashboard() {
             ))}
           </div>
           {topTotalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+            <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex justify-end">
               <div className="flex items-center space-x-2 text-sm">
                 <button
                   onClick={() => setTopPage((p) => Math.max(1, p - 1))}
@@ -615,7 +690,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts and Additional Stats */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="mt-6 sm:mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Revenue Chart */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">

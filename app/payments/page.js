@@ -128,17 +128,84 @@ function PaymentsPageContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6 sm:py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-gray-900">
-          <CreditCard className="text-brand" size={32} />
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center gap-3 text-gray-900">
+          <CreditCard className="text-brand h-6 w-6 sm:h-8 sm:w-8" size={32} />
           Payment History
         </h1>
         <p className="text-gray-600">View all your payment transactions</p>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="md:hidden divide-y divide-gray-200">
+          {payments.map((payment, index) => {
+            const StatusIcon = statusIcons[payment.status] || Clock;
+            return (
+              <div
+                key={
+                  payment.id ||
+                  payment.transaction_id ||
+                  `${payment.order_id || "payment"}-${payment.created_at || "date"}-${index}`
+                }
+                className="px-4 py-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {(payment.transaction_id ||
+                        (payment.id ? String(payment.id).substring(0, 12) : "N/A"))}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Order: {payment.order?.order_number || "N/A"}
+                    </p>
+                  </div>
+                  <span
+                    className={`px-2.5 py-1 inline-flex items-center gap-1.5 text-xs font-semibold rounded-full ${
+                      statusColors[payment.status] || "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    <StatusIcon size={12} />
+                    {payment.status}
+                  </span>
+                </div>
+                <div className="mt-2 text-xs text-gray-600 flex items-center gap-2">
+                  <Calendar size={14} className="text-gray-400" />
+                  {payment.created_at
+                    ? new Date(payment.created_at).toLocaleDateString()
+                    : "N/A"}
+                </div>
+                <div className="mt-2 text-sm text-gray-700 flex items-center gap-2">
+                  <CreditCard size={14} className="text-gray-400" />
+                  {payment.payment_method || "N/A"}
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-900 flex items-center gap-1">
+                    <IndianRupee size={14} className="text-gray-400" />
+                    {formatCurrency(payment.amount)}
+                  </span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <button
+                      onClick={() => handleViewPayment(payment.order_id)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-brand hover:bg-brand-soft rounded-lg transition-colors"
+                    >
+                      <Eye size={14} />
+                      {viewLoadingId === payment.order_id ? "Loading..." : "View"}
+                    </button>
+                    {payment.status === "completed" && (
+                      <button className="inline-flex items-center gap-1 px-2.5 py-1.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                        <Download size={14} />
+                        Receipt
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -171,7 +238,8 @@ function PaymentsPageContent() {
                 return (
                   <tr key={payment.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {payment.transaction_id || payment.id.substring(0, 12)}
+                      {(payment.transaction_id ||
+                        (payment.id ? String(payment.id).substring(0, 12) : "N/A"))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {payment.order?.order_number || "N/A"}
@@ -261,7 +329,7 @@ function PaymentsPageContent() {
               Close
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
             <div>
               <p className="text-gray-500">Payment ID</p>
               <p className="font-medium text-gray-900">{selectedPayment.id}</p>
@@ -302,10 +370,10 @@ function PaymentsPageContent() {
 
       {/* Payment Summary Card */}
       {payments.length > 0 && (
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-6 grid grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center gap-3">
-              <CheckCircle className="text-green-600" size={24} />
+              <CheckCircle className="text-green-600 h-5 w-5 sm:h-6 sm:w-6" size={24} />
               <div>
                 <p className="text-sm text-green-600 font-medium">Completed</p>
                 <p className="text-2xl font-bold text-green-800">
@@ -317,7 +385,7 @@ function PaymentsPageContent() {
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-center gap-3">
-              <Clock className="text-yellow-600" size={24} />
+              <Clock className="text-yellow-600 h-5 w-5 sm:h-6 sm:w-6" size={24} />
               <div>
                 <p className="text-sm text-yellow-600 font-medium">Pending</p>
                 <p className="text-2xl font-bold text-yellow-800">
@@ -329,7 +397,7 @@ function PaymentsPageContent() {
 
           <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
             <div className="flex items-center gap-3">
-              <IndianRupee className="text-brand" size={24} />
+              <IndianRupee className="text-brand h-5 w-5 sm:h-6 sm:w-6" size={24} />
               <div>
                 <p className="text-sm text-brand font-medium">Total Spent</p>
                 <p className="text-2xl font-bold text-[rgb(var(--brand-primary-dark))]">

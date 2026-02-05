@@ -203,49 +203,53 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="py-6 sm:py-8">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            My Orders
+          </h1>
           <p className="text-gray-600 mt-2">View and manage your orders</p>
         </div>
       </div>
 
       {/* Filters */}
       <div className="mb-6 bg-white rounded-lg shadow-sm p-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:space-x-4">
           <div className="flex items-center">
-            <Filter className="h-5 w-5 text-gray-400 mr-2" />
+            <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 mr-2" />
             <span className="text-sm font-medium text-gray-700">
               Filter by:
             </span>
           </div>
-          {[
-            "all",
-            "pending",
-            "processing",
-            "shipped",
-            "delivered",
-            "return_requested",
-            "cancelled",
-          ].map((status) => (
-            <button
-              key={status}
-              onClick={() => {
-                setFilter(status);
-                setPage(1);
-              }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                filter === status
-                  ? "bg-brand text-white"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              {status === "all"
-                ? "All Orders"
-                : ORDER_STATUS_LABELS[status] || status}
-            </button>
-          ))}
+          <div className="flex flex-wrap gap-2">
+            {[
+              "all",
+              "pending",
+              "processing",
+              "shipped",
+              "delivered",
+              "return_requested",
+              "cancelled",
+            ].map((status) => (
+              <button
+                key={status}
+                onClick={() => {
+                  setFilter(status);
+                  setPage(1);
+                }}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium ${
+                  filter === status
+                    ? "bg-brand text-white"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                {status === "all"
+                  ? "All Orders"
+                  : ORDER_STATUS_LABELS[status] || status}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -268,7 +272,7 @@ export default function OrdersPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {visibleOrders.map((order) => {
             const StatusIcon = getStatusIcon(order.status);
             const returnItem = returnsByOrderId[order.id];
@@ -278,9 +282,9 @@ export default function OrdersPage() {
                 href={`/orders/${order.id}`}
                 className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-4">
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="flex flex-wrap items-center gap-2">
                       <div
                         className={`${getStatusColor(
                           order.status
@@ -292,14 +296,14 @@ export default function OrdersPage() {
                         </span>
                       </div>
                       {getReturnBadge(returnItem)}
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs sm:text-sm text-gray-500">
                         Order #{order.order_number?.replace("ORD-", "")}
                       </span>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                    <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     <div>
                       <p className="text-sm text-gray-500">Date Placed</p>
                       <p className="font-medium">

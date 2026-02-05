@@ -81,18 +81,20 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6 sm:py-8">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <Users className="text-brand" size={28} />
-          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
+          <Users className="text-brand h-6 w-6 sm:h-7 sm:w-7" size={28} />
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Users
+          </h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <label className="text-sm text-gray-600">Range</label>
           <select
             value={rangeDays}
             onChange={(e) => setRangeDays(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -106,7 +108,7 @@ export default function AdminUsersPage() {
               setPage(1);
               setLimit(Number(e.target.value));
             }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value={10}>10 / page</option>
             <option value={25}>25 / page</option>
@@ -122,7 +124,59 @@ export default function AdminUsersPage() {
       )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="md:hidden divide-y divide-gray-200">
+          {users.map((user) => (
+            <div key={user.id} className="px-4 py-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {user.first_name} {user.last_name}
+                  </p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <Shield size={12} className="text-gray-400" />
+                  {user.role}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+                <button
+                  onClick={() => handleRoleChange(user.id, "admin")}
+                  disabled={
+                    user.role === "admin" ||
+                    updatingId === user.id ||
+                    user.id === currentUser?.id
+                  }
+                  className="text-brand hover:text-[rgb(var(--brand-primary-dark))] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Make Admin
+                </button>
+                <button
+                  onClick={() => handleRoleChange(user.id, "customer")}
+                  disabled={
+                    user.role === "customer" ||
+                    updatingId === user.id ||
+                    user.id === currentUser?.id
+                  }
+                  className="text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Make Customer
+                </button>
+                {user.id === currentUser?.id && (
+                  <span className="text-xs text-gray-500">(current user)</span>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {users.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              No users found.
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>

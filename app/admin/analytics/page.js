@@ -116,7 +116,7 @@ export default function AdminAnalyticsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -125,7 +125,10 @@ export default function AdminAnalyticsPage() {
                 {formatCurrency(stats.revenue)}
               </p>
             </div>
-            <TrendingUp className="text-green-500" size={28} />
+            <TrendingUp
+              className="text-green-500 h-5 w-5 sm:h-7 sm:w-7"
+              size={28}
+            />
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -136,7 +139,10 @@ export default function AdminAnalyticsPage() {
                 {stats.orders}
               </p>
             </div>
-            <ShoppingCart className="text-brand" size={28} />
+            <ShoppingCart
+              className="text-brand h-5 w-5 sm:h-7 sm:w-7"
+              size={28}
+            />
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -147,7 +153,10 @@ export default function AdminAnalyticsPage() {
                 {stats.customers}
               </p>
             </div>
-            <Users className="text-purple-500" size={28} />
+            <Users
+              className="text-purple-500 h-5 w-5 sm:h-7 sm:w-7"
+              size={28}
+            />
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -158,7 +167,10 @@ export default function AdminAnalyticsPage() {
                 {formatCurrency(stats.avgOrderValue)}
               </p>
             </div>
-            <BarChart3 className="text-orange-500" size={28} />
+            <BarChart3
+              className="text-orange-500 h-5 w-5 sm:h-7 sm:w-7"
+              size={28}
+            />
           </div>
         </div>
       </div>
