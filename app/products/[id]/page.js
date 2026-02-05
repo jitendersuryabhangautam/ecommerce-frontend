@@ -113,15 +113,15 @@ export default function ProductDetailPage() {
   return (
     <div className="bg-transparent py-8">
       <div className="w-full max-w-none px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-2 lg:gap-x-10 bg-white border border-gray-100 p-6 lg:p-10 shadow-sm">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-10 bg-white border border-gray-100 p-4 sm:p-6 lg:p-10 shadow-sm">
           {/* Image gallery */}
-          <div className="grid grid-cols-[120px_1fr] gap-4 max-h-[560px]">
-            <div className="flex flex-col gap-3">
+          <div className="grid gap-4 sm:grid-cols-[120px_1fr]">
+            <div className="order-2 sm:order-1 flex gap-3 sm:flex-col sm:gap-3 overflow-x-auto sm:overflow-visible pb-1 sm:pb-0">
               {images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative w-full overflow-hidden bg-gray-100 aspect-[3/4] ${
+                  className={`relative shrink-0 w-24 sm:w-full overflow-hidden bg-gray-100 aspect-[3/4] ${
                     selectedImage === index
                       ? "ring-2 ring-[rgba(255,63,108,0.6)]"
                       : "hover:shadow-sm"
@@ -139,8 +139,8 @@ export default function ProductDetailPage() {
                 </button>
               ))}
             </div>
-            <div className="relative w-full bg-gray-100 overflow-hidden">
-              <div className="aspect-[3/4] w-full">
+            <div className="order-1 sm:order-2 relative w-full bg-gray-100 overflow-hidden rounded-lg">
+              <div className="aspect-[4/5] w-full">
                 <Image
                   src={images[selectedImage]}
                   alt={product.name}
@@ -155,10 +155,10 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product info */}
-          <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
+          <div className="mt-8 px-1 sm:mt-10 sm:px-0 lg:mt-0">
             {/* Category */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-brand bg-brand-soft px-3 py-1 rounded-full uppercase tracking-wide">
+              <span className="text-[11px] font-semibold text-brand bg-brand-soft px-2.5 py-1 rounded-full uppercase tracking-[0.2em]">
                 {product.category}
               </span>
               <div className="flex items-center space-x-2">
@@ -181,20 +181,22 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Name */}
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 mt-4">
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 mt-3">
               {product.name}
             </h1>
 
             {/* SKU */}
-            <p className="text-sm text-gray-500 mt-1">SKU: {product.sku}</p>
+            <p className="text-xs text-gray-500 mt-1 uppercase tracking-wide">
+              SKU: {product.sku}
+            </p>
 
             {/* Rating */}
-            <div className="flex items-center mt-4">
+            <div className="flex items-center mt-3">
               <div className="flex items-center">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`h-5 w-5 ${
+                    className={`h-4 w-4 ${
                       star <= 4
                         ? "text-yellow-400 fill-current"
                         : "text-gray-300"
@@ -202,27 +204,27 @@ export default function ProductDetailPage() {
                   />
                 ))}
               </div>
-              <span className="ml-2 text-sm text-gray-600">
+              <span className="ml-2 text-xs text-gray-600">
                 4.0 (128 reviews)
               </span>
             </div>
 
             {/* Price */}
-            <div className="mt-6">
-              <p className="text-3xl font-bold text-gray-900">
+            <div className="mt-5">
+              <p className="text-2xl sm:text-3xl font-semibold text-gray-900">
                 {formatCurrency(product.price)}
               </p>
             </div>
 
             {/* Stock status */}
-            <div className="mt-4">
+            <div className="mt-3">
               {product.stock > 0 ? (
-                <p className="text-sm text-green-600 flex items-center">
+                <p className="text-xs text-green-600 flex items-center uppercase tracking-wide">
                   <span className="h-2 w-2 bg-green-600 rounded-full mr-2"></span>
                   In stock ({product.stock} available)
                 </p>
               ) : (
-                <p className="text-sm text-red-600 flex items-center">
+                <p className="text-xs text-red-600 flex items-center uppercase tracking-wide">
                   <span className="h-2 w-2 bg-red-600 rounded-full mr-2"></span>
                   Out of stock
                 </p>
@@ -230,24 +232,26 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Description */}
-            <div className="mt-8">
-              <h3 className="text-lg font-medium text-gray-900">Description</h3>
-              <div className="mt-4 text-gray-700 space-y-3">
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-[0.2em]">
+                Description
+              </h3>
+              <div className="mt-3 text-sm text-gray-700 space-y-3 leading-relaxed">
                 <p>{product.description}</p>
               </div>
             </div>
 
             {/* Quantity */}
-            <div className="mt-8">
-              <div className="flex items-center">
-                <label className="mr-4 text-sm font-medium text-gray-900">
+            <div className="mt-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <label className="text-xs font-semibold text-gray-900 uppercase tracking-wide">
                   Quantity
                 </label>
-                <div className="flex items-center border border-gray-300 rounded-lg">
+                <div className="flex items-center w-full sm:w-auto border border-gray-300 rounded-lg overflow-hidden">
                   <button
                     onClick={() => handleQuantityChange(quantity - 1)}
                     disabled={quantity <= 1}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50"
+                    className="w-12 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50"
                   >
                     -
                   </button>
@@ -259,12 +263,12 @@ export default function ProductDetailPage() {
                     onChange={(e) =>
                       handleQuantityChange(parseInt(e.target.value) || 1)
                     }
-                    className="w-16 text-center border-x border-gray-300 py-2"
+                    className="flex-1 min-w-0 text-center border-x border-gray-300 py-2 text-sm"
                   />
                   <button
                     onClick={() => handleQuantityChange(quantity + 1)}
                     disabled={quantity >= product.stock}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50"
+                    className="w-12 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50"
                   >
                     +
                   </button>
@@ -273,11 +277,11 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Action buttons */}
-            <div className="mt-8 space-y-3">
+            <div className="mt-6 space-y-3">
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0 || addingToCart}
-                className={`w-full flex items-center justify-center px-6 py-3 rounded-full font-medium ${
+                className={`w-full flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold uppercase tracking-wide ${
                   product.stock === 0
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-brand hover:bg-[#e11e5a] text-white"
@@ -299,7 +303,7 @@ export default function ProductDetailPage() {
               <button
                 disabled={product.stock === 0}
                 onClick={handleBuyNow}
-                className={`w-full px-6 py-3 rounded-full font-medium border ${
+                className={`w-full px-6 py-3 rounded-full text-sm font-semibold uppercase tracking-wide border ${
                   product.stock === 0
                     ? "border-gray-300 text-gray-400 cursor-not-allowed"
                     : "border-[rgba(255,63,108,0.6)] text-brand hover:bg-brand-soft"
@@ -310,8 +314,10 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Features */}
-            <div className="mt-8 border-t border-gray-200 pt-8">
-              <h3 className="text-lg font-medium text-gray-900">Features</h3>
+            <div className="mt-8 border-t border-gray-200 pt-6">
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-[0.2em]">
+                Features
+              </h3>
               <div className="mt-4 space-y-4">
                 {features.map((feature, index) => {
                   const Icon = feature.icon;
