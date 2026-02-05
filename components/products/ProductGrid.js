@@ -73,7 +73,10 @@ export default function ProductGrid({
             <div
               key={product.id}
               className="bg-white border border-gray-100 p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow"
-              style={{ contentVisibility: "auto", containIntrinsicSize: "160px" }}
+              style={{
+                contentVisibility: "auto",
+                containIntrinsicSize: "160px",
+              }}
             >
               <Link href={`/products/${product.id}`} className="shrink-0">
                 <div className="relative h-28 w-28 bg-gray-100 overflow-hidden">
@@ -127,7 +130,7 @@ export default function ProductGrid({
                     >
                       -
                     </button>
-                    <span className="px-3 py-2 border-x border-gray-200 min-w-[36px] text-center text-sm">
+                    <span className="px-3 py-2 border-x border-gray-200 min-w-9 text-center text-sm">
                       {updatingId === product.id ? (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand border-t-transparent mx-auto" />
                       ) : (
