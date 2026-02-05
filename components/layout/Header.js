@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
+import { productService } from "@/services/api";
+import { SEARCH_KEYWORDS } from "@/utils/searchKeywords";
+import { buildKeywordIndex, searchKeywordIndex } from "@/utils/keywordSearch";
 
 export default function Header({ onMenuClick }) {
   const pathname = usePathname();
@@ -31,11 +34,38 @@ export default function Header({ onMenuClick }) {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [productIndex, setProductIndex] = useState([]);
+  const searchTimeoutRef = useRef(null);
+  const hasFetchedProductsRef = useRef(false);
+
+  const keywordIndex = useMemo(
+    () => buildKeywordIndex(SEARCH_KEYWORDS, 8),
+    []
+  );
+
+  const fetchProductIndex = async () => {
+    if (hasFetchedProductsRef.current) return;
+    try {
+      setSearchLoading(true);
+      const response = await productService.getAllProducts({ limit: 200 });
+      const payload = response.data?.data || response.data || {};
+      const list = payload.products || [];
+      setProductIndex(Array.isArray(list) ? list : []);
+      hasFetchedProductsRef.current = true;
+    } catch (error) {
+      console.error("Search index fetch failed:", error);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
     }
   };
 
@@ -43,6 +73,48 @@ export default function Header({ onMenuClick }) {
     logout();
     setUserMenuOpen(false);
   };
+
+  const trimmedQuery = searchQuery.trim().toLowerCase();
+  const productSuggestions = useMemo(() => {
+    if (!trimmedQuery || trimmedQuery.length < 2) return [];
+    const matches = productIndex.filter((item) => {
+      const name = item?.name?.toLowerCase() || "";
+      const sku = item?.sku?.toLowerCase() || "";
+      const category = item?.category?.toLowerCase() || "";
+      const description = item?.description?.toLowerCase() || "";
+      return (
+        name.includes(trimmedQuery) ||
+        sku.includes(trimmedQuery) ||
+        category.includes(trimmedQuery) ||
+        description.includes(trimmedQuery)
+      );
+    });
+    return matches.slice(0, 6);
+  }, [productIndex, trimmedQuery]);
+
+  const keywordMatches = useMemo(() => {
+    if (!trimmedQuery || trimmedQuery.length < 2) return [];
+    return searchKeywordIndex(keywordIndex, trimmedQuery, {
+      limit: 6,
+      fuzzyDistance: 1,
+    });
+  }, [keywordIndex, trimmedQuery]);
+
+  useEffect(() => {
+    if (!trimmedQuery || trimmedQuery.length < 2) {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      return;
+    }
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchProductIndex();
+    }, 250);
+    return () => clearTimeout(searchTimeoutRef.current);
+  }, [trimmedQuery]);
 
   const navigation = [
     { name: "Home", href: "/", icon: Home },
@@ -180,7 +252,12 @@ export default function Header({ onMenuClick }) {
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <form onSubmit={handleSearch} className="relative flex-1">
+              <form
+                onSubmit={handleSearch}
+                className="relative flex-1"
+                onFocus={() => setIsSearchOpen(true)}
+                onBlur={() => setIsSearchOpen(false)}
+              >
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
@@ -189,6 +266,7 @@ export default function Header({ onMenuClick }) {
                     className="w-full min-w-0 pl-10 pr-12 py-2 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[rgba(255,63,108,0.25)] focus:border-transparent"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchOpen(true)}
                   />
                   <button
                     type="submit"
@@ -198,6 +276,80 @@ export default function Header({ onMenuClick }) {
                     <Search className="h-4 w-4" />
                   </button>
                 </div>
+                {isSearchOpen && trimmedQuery.length >= 2 && (
+                  <div
+                    className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden z-40"
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    {searchLoading && (
+                      <div className="px-4 py-3 text-sm text-gray-500">
+                        Loading suggestions...
+                      </div>
+                    )}
+                    {!searchLoading &&
+                      productSuggestions.length === 0 &&
+                      keywordMatches.length === 0 && (
+                        <div className="px-4 py-3 text-sm text-gray-500">
+                          No suggestions found.
+                        </div>
+                      )}
+                    {productSuggestions.length > 0 && (
+                      <div className="py-2">
+                        <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          Products
+                        </div>
+                        {productSuggestions.map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              router.push(`/products/${item.id}`);
+                              setIsSearchOpen(false);
+                            }}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <span className="text-sm text-gray-900">
+                              {item.name}
+                            </span>
+                            {item.sku && (
+                              <span className="text-xs text-gray-400">
+                                {item.sku}
+                              </span>
+                            )}
+                            {item.category && (
+                              <span className="ml-auto text-xs text-gray-500">
+                                {item.category}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {keywordMatches.length > 0 && (
+                      <div className="py-2 border-t border-gray-100">
+                        <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          Suggestions
+                        </div>
+                        {keywordMatches.map((term) => (
+                          <button
+                            key={term}
+                            type="button"
+                            onClick={() => {
+                              setSearchQuery(term);
+                              router.push(
+                                `/products?search=${encodeURIComponent(term)}`
+                              );
+                              setIsSearchOpen(false);
+                            }}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm text-gray-700"
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </form>
             </div>
           </div>
