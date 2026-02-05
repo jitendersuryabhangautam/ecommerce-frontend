@@ -7,6 +7,7 @@ import {
   updateOrderStatusAction,
 } from "@/app/actions/orderActions";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { toast } from "react-toastify";
 import {
   CheckCircle,
   XCircle,
@@ -104,7 +105,13 @@ export default function AdminOrdersPage() {
       setStatusDialog({ open: false, orderId: null, currentStatus: "" });
     } catch (error) {
       console.error("Error updating order status:", error);
-      showAlert("Error updating order status", "error");
+      const message =
+        error?.data?.error ||
+        error?.data?.message ||
+        error?.message ||
+        "Error updating order status";
+      showAlert(message, "error");
+      toast.error(message);
     }
   };
 
@@ -130,7 +137,7 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6 sm:py-8">
       {/* Alert */}
       {alert.show && (
         <div
@@ -150,16 +157,16 @@ export default function AdminOrdersPage() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Package className="text-brand" size={32} />
+        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
+          <Package className="text-brand h-6 w-6 sm:h-8 sm:w-8" size={32} />
           Order Management
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <label className="text-sm text-gray-600">Range</label>
           <select
             value={rangeDays}
             onChange={(e) => setRangeDays(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -173,7 +180,7 @@ export default function AdminOrdersPage() {
               setPage(1);
               setLimit(Number(e.target.value));
             }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value={10}>10 / page</option>
             <option value={25}>25 / page</option>
@@ -183,7 +190,86 @@ export default function AdminOrdersPage() {
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="md:hidden divide-y divide-gray-200">
+          {orders.map((order) => {
+            const StatusIcon = statusIcons[order.status] || Clock;
+            return (
+              <div key={order.id} className="px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {order.order_number}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {order.user?.email || "N/A"}
+                    </p>
+                  </div>
+                  <span
+                    className={`px-2.5 py-1 inline-flex items-center gap-1.5 text-xs font-semibold rounded-full ${
+                      statusColors[order.status] || "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    <StatusIcon size={12} />
+                    {order.status}
+                  </span>
+                </div>
+
+                <div className="mt-2 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-xs text-gray-500">Date</p>
+                    <p className="font-medium text-gray-900">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Time</p>
+                    <p className="font-medium text-gray-900">
+                      {new Date(order.created_at).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Items</p>
+                    <p className="font-medium text-gray-900">
+                      {Array.isArray(order.items) ? order.items.length : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Total</p>
+                    <p className="font-semibold text-gray-900">
+                      {formatCurrency(order.total_amount)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                  <a
+                    href={`/orders/${order.id}`}
+                    className="inline-flex items-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Eye size={14} />
+                    Details
+                  </a>
+                  <button
+                    onClick={() => handleStatusChange(order.id, order.status)}
+                    className="inline-flex items-center gap-2 px-3 py-2 border border-brand text-brand rounded-lg hover:bg-brand-soft transition-colors"
+                  >
+                    <Edit size={14} />
+                    Change Status
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {orders.length === 0 && (
+            <div className="text-center py-12">
+              <Package size={48} className="mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-500">No orders found</p>
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
