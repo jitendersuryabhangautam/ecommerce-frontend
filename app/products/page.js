@@ -1,21 +1,22 @@
 "use client";
 
 import { useState, useEffect, Suspense, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { Filter, Grid, List, ChevronDown } from "lucide-react";
 import ProductGrid from "@/components/products/ProductGrid";
 import { getAllProductsAction } from "@/app/actions/productActions";
-import { buildCacheKey, getSessionCache, setSessionCache } from "@/utils/clientCache";
 import { CATEGORIES } from "@/utils/constants";
 
 function ProductsPageContent() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalProducts, setTotalProducts] = useState(0);
   const [viewMode, setViewMode] = useState("grid");
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef(null);
+  const pagingRef = useRef(false);
   const [hasMore, setHasMore] = useState(true);
   const [filters, setFilters] = useState({
     page: 1,
@@ -26,21 +27,14 @@ function ProductsPageContent() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    const cacheKey = buildCacheKey("products", filters);
-    const cached = getSessionCache(cacheKey);
-    if (cached && Array.isArray(cached.products)) {
-      setProducts((prev) =>
-        filters.page === 1 ? cached.products : [...prev, ...cached.products]
-      );
-      setTotalProducts(cached.total || 0);
-      setHasMore(
-        (filters.page === 1 ? cached.products.length : products.length + cached.products.length) <
-          (cached.total || 0)
-      );
-      setLoading(false);
-      return;
+  const computeHasMore = ({ currentCount, nextBatchCount, total }) => {
+    if (typeof total === "number" && total > 0) {
+      return currentCount + nextBatchCount < total;
     }
+    return nextBatchCount > 0;
+  };
+
+  useEffect(() => {
     fetchProducts();
   }, [filters.page, filters.category, filters.search, filters.sort, filters.limit]);
 
@@ -63,10 +57,44 @@ function ProductsPageContent() {
     }));
     setProducts([]);
     setHasMore(true);
+    pagingRef.current = false;
   }, [searchParams]);
+
+  useEffect(() => {
+    if (pathname === "/products") return;
+    setFilters({
+      page: 1,
+      limit: 16,
+      category: "",
+      search: "",
+      sort: "newest",
+    });
+    setProducts([]);
+    setHasMore(true);
+    pagingRef.current = false;
+  }, [pathname]);
+
+  useEffect(() => {
+    if (pathname !== "/products") return;
+    setFilters((prev) => ({
+      ...prev,
+      page: 1,
+      limit: 16,
+    }));
+    setProducts([]);
+    setHasMore(true);
+    pagingRef.current = false;
+  }, [pathname]);
 
   const fetchProducts = async () => {
     try {
+      console.log("Products fetch start", {
+        page: filters.page,
+        limit: filters.limit,
+        category: filters.category,
+        search: filters.search,
+        sort: filters.sort,
+      });
       if (filters.page === 1) {
         setLoading(true);
       } else {
@@ -75,29 +103,38 @@ function ProductsPageContent() {
       const response = await getAllProductsAction(filters);
       const payload = response.data || response;
       const nextProducts = payload.products || [];
+      const nextTotal =
+        payload.meta?.total ?? payload.total ?? payload.meta?.count ?? 0;
+      console.log("Products fetch result", {
+        page: filters.page,
+        received: nextProducts.length,
+        total: nextTotal,
+        hasProductsArray: Array.isArray(payload.products),
+        meta: payload.meta,
+      });
       if (filters.page > 1 && nextProducts.length === 0) {
         setHasMore(false);
         return;
       }
-      setProducts((prev) =>
-        filters.page === 1 ? nextProducts : [...prev, ...nextProducts]
-      );
-      setTotalProducts(payload.meta?.total || 0);
-      setHasMore(
-        (filters.page === 1
-          ? nextProducts.length
-          : products.length + nextProducts.length) < (payload.meta?.total || 0)
-      );
-      const cacheKey = buildCacheKey("products", filters);
-      setSessionCache(cacheKey, {
-        products: nextProducts,
-        total: payload.meta?.total || 0,
+      setProducts((prev) => {
+        const merged =
+          filters.page === 1 ? nextProducts : [...prev, ...nextProducts];
+        setHasMore(
+          computeHasMore({
+            currentCount: filters.page === 1 ? 0 : prev.length,
+            nextBatchCount: nextProducts.length,
+            total: nextTotal,
+          })
+        );
+        return merged;
       });
+      setTotalProducts(nextTotal);
     } catch (error) {
       console.error("Failed to fetch products:", error);
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      pagingRef.current = false;
     }
   };
 
@@ -124,24 +161,28 @@ function ProductsPageContent() {
   const totalPages = Math.ceil(totalProducts / filters.limit);
 
   useEffect(() => {
-    if (!sentinelRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (
-          entry.isIntersecting &&
-          !loadingMore &&
-          !loading &&
-          hasMore
-        ) {
-          setFilters((prev) => ({ ...prev, page: prev.page + 1 }));
-        }
-      },
-      { rootMargin: "200px" }
-    );
-    observer.observe(sentinelRef.current);
-    return () => observer.disconnect();
-  }, [products.length, totalProducts, loadingMore, loading, hasMore]);
+    const handleScroll = () => {
+      if (pagingRef.current || loadingMore || loading || !hasMore) return;
+      const threshold = 400;
+      const scrollY = window.scrollY || window.pageYOffset;
+      const viewportHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+      if (scrollY + viewportHeight >= fullHeight - threshold) {
+        console.log("Products scroll: loading next page", {
+          currentPage: filters.page,
+          nextPage: filters.page + 1,
+          hasMore,
+          loading,
+          loadingMore,
+        });
+        pagingRef.current = true;
+        setFilters((prev) => ({ ...prev, page: prev.page + 1 }));
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [filters.page, loadingMore, loading, hasMore]);
 
   return (
     <div className="space-y-8">

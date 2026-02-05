@@ -26,3 +26,17 @@ export const buildCacheKey = (prefix, params) => {
     }, {});
   return `${prefix}:${JSON.stringify(stable)}`;
 };
+
+export const clearSessionCachePrefix = (prefix) => {
+  if (typeof window === "undefined") return;
+  try {
+    for (let i = sessionStorage.length - 1; i >= 0; i -= 1) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith(prefix)) {
+        sessionStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // ignore
+  }
+};
