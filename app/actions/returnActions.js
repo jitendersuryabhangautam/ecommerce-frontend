@@ -18,6 +18,6 @@ export const getAllReturnsAction = async (params = {}) =>
 export const processReturnAction = async (returnId, returnData) =>
   apiHandler({
     path: `/admin/returns/${returnId}/process`,
-    method: "PUT",
+    method: "POST",
     body: returnData,
   });

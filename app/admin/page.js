@@ -1,9 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import {
+  getAdminAnalyticsAction,
+  getRecentAdminOrdersAction,
+  getTopAdminProductsAction,
+} from "@/app/actions/adminActions";
 import {
   DollarSign,
   ShoppingCart,
@@ -37,7 +41,6 @@ const formatDate = (date) => {
   });
 };
 export default function AdminDashboard() {
-  const router = useRouter();
   const { user, isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -48,89 +51,94 @@ export default function AdminDashboard() {
   });
   const [recentOrders, setRecentOrders] = useState([]);
   const [recentProducts, setRecentProducts] = useState([]);
+  const [error, setError] = useState("");
+  const [rangeDays, setRangeDays] = useState(30);
+  const [recentPage, setRecentPage] = useState(1);
+  const [recentLimit, setRecentLimit] = useState(5);
+  const [topPage, setTopPage] = useState(1);
+  const [topLimit, setTopLimit] = useState(5);
 
   const fetchDashboardData = async () => {
-    // In a real app, you would fetch this from your API
-    setTimeout(() => {
+    try {
+      setLoading(true);
+      setError("");
+      const [analyticsResponse, recentOrdersResponse, topProductsResponse] =
+        await Promise.all([
+          getAdminAnalyticsAction(rangeDays),
+          getRecentAdminOrdersAction({ limit: 10, rangeDays }),
+          getTopAdminProductsAction({ limit: 5, rangeDays }),
+        ]);
+
+      const analytics = analyticsResponse?.data || analyticsResponse;
+      console.log("Admin dashboard analytics:", analyticsResponse);
+      const totals = analytics?.totals || {};
+
+      const recentOrdersPayload =
+        recentOrdersResponse?.data || recentOrdersResponse;
+      const recentOrdersList = recentOrdersPayload?.orders || [];
+
+      const topProductsPayload =
+        topProductsResponse?.data || topProductsResponse;
+      const topProductsList = topProductsPayload?.items || [];
+
+      const recentOrdersData = recentOrdersList.map((order) => ({
+        id: order.id,
+        orderNumber: order.order_number,
+        customer: order.user?.email || order.user_id || "Customer",
+        date: order.created_at,
+        amount: order.total_amount,
+        status: order.status,
+      }));
+
+      const topProductsData = topProductsList.map((item) => ({
+        id: item.product?.id,
+        name: item.product?.name,
+        category: item.product?.category,
+        price: item.product?.price,
+        stock: item.product?.stock,
+        sales: item.total_quantity || 0,
+      }));
+
+      const pickTotal = (primary, fallbacks = []) => {
+        if (typeof primary === "number") return primary;
+        for (const key of fallbacks) {
+          if (typeof totals?.[key] === "number") return totals[key];
+        }
+        return 0;
+      };
+
       setStats({
-        totalRevenue: 12542.75,
-        totalOrders: 342,
-        totalProducts: 156,
-        totalCustomers: 1245,
+        totalRevenue: pickTotal(totals.total_revenue, [
+          "revenue",
+          "totalRevenue",
+          "total_revenue",
+        ]),
+        totalOrders: pickTotal(totals.total_orders, [
+          "orders",
+          "totalOrders",
+          "total_orders",
+        ]),
+        totalProducts: pickTotal(totals.total_products, [
+          "products",
+          "totalProducts",
+          "total_products",
+        ]),
+        totalCustomers: pickTotal(totals.total_customers, [
+          "customers",
+          "totalCustomers",
+          "total_customers",
+        ]),
       });
-
-      setRecentOrders([
-        {
-          id: "1",
-          orderNumber: "ORD-12345",
-          customer: "John Doe",
-          date: "2024-01-15T10:30:00Z",
-          amount: 249.99,
-          status: "completed",
-        },
-        {
-          id: "2",
-          orderNumber: "ORD-12346",
-          customer: "Jane Smith",
-          date: "2024-01-14T14:20:00Z",
-          amount: 129.99,
-          status: "processing",
-        },
-        {
-          id: "3",
-          orderNumber: "ORD-12347",
-          customer: "Bob Johnson",
-          date: "2024-01-14T09:15:00Z",
-          amount: 89.99,
-          status: "pending",
-        },
-        {
-          id: "4",
-          orderNumber: "ORD-12348",
-          customer: "Alice Brown",
-          date: "2024-01-13T16:45:00Z",
-          amount: 199.99,
-          status: "shipped",
-        },
-      ]);
-
-      setRecentProducts([
-        {
-          id: "1",
-          name: "Premium Gaming Laptop",
-          category: "Electronics",
-          price: 1499.99,
-          stock: 15,
-          sales: 42,
-        },
-        {
-          id: "2",
-          name: "Wireless Headphones",
-          category: "Audio",
-          price: 199.99,
-          stock: 56,
-          sales: 89,
-        },
-        {
-          id: "3",
-          name: "Smart Watch Pro",
-          category: "Wearables",
-          price: 299.99,
-          stock: 23,
-          sales: 67,
-        },
-        {
-          id: "4",
-          name: "Ergonomic Office Chair",
-          category: "Furniture",
-          price: 399.99,
-          stock: 8,
-          sales: 34,
-        },
-      ]);
-
+      setRecentOrders(recentOrdersData);
+      setRecentProducts(topProductsData);
+      setRecentPage(1);
+      setTopPage(1);
+    } catch (err) {
+      console.error("Failed to load admin dashboard data:", err);
+      setError(err?.message || "Failed to load admin dashboard");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   useEffect(() => {
@@ -142,7 +150,7 @@ export default function AdminDashboard() {
     //   return;
     // }
     fetchDashboardData();
-  }, [isAdmin, router, user]);
+  }, [isAdmin, user, rangeDays]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -160,7 +168,11 @@ export default function AdminDashboard() {
   };
 
   if (!isAdmin) {
-    return null;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-gray-600">Access denied. Admins only.</p>
+      </div>
+    );
   }
 
   if (loading) {
@@ -195,6 +207,7 @@ export default function AdminDashboard() {
       color: "bg-purple-500",
       change: "+5.7%",
       changeColor: "text-purple-600",
+      href: "/admin/products",
     },
     {
       title: "Total Customers",
@@ -205,6 +218,23 @@ export default function AdminDashboard() {
       changeColor: "text-orange-600",
     },
   ];
+
+  const recentTotalPages = Math.max(
+    1,
+    Math.ceil(recentOrders.length / recentLimit)
+  );
+  const topTotalPages = Math.max(
+    1,
+    Math.ceil(recentProducts.length / topLimit)
+  );
+  const visibleRecentOrders = recentOrders.slice(
+    (recentPage - 1) * recentLimit,
+    recentPage * recentLimit
+  );
+  const visibleTopProducts = recentProducts.slice(
+    (topPage - 1) * topLimit,
+    topPage * topLimit
+  );
 
   const quickActions = [
     {
@@ -240,17 +270,46 @@ export default function AdminDashboard() {
   return (
     <div className="py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome back, {user?.first_name}!</p>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-2">Welcome back, {user?.first_name}!</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600">Range</label>
+          <select
+            value={rangeDays}
+            onChange={(e) => setRangeDays(Number(e.target.value))}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value={7}>Last 7 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={90}>Last 90 days</option>
+            <option value={180}>Last 180 days</option>
+            <option value={365}>Last 365 days</option>
+          </select>
+        </div>
       </div>
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat) => {
           const Icon = stat.icon;
+          const Wrapper = stat.href ? "a" : "div";
           return (
-            <div key={stat.title} className="bg-white rounded-lg shadow-sm p-6">
+            <Wrapper
+              key={stat.title}
+              href={stat.href}
+              className={`bg-white rounded-lg shadow-sm p-6 ${
+                stat.href ? "hover:shadow-md transition-shadow cursor-pointer" : ""
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
@@ -259,15 +318,19 @@ export default function AdminDashboard() {
                   <p className="text-2xl font-bold text-gray-900 mt-2">
                     {stat.value}
                   </p>
-                  <p className={`text-sm font-medium mt-1 ${stat.changeColor}`}>
-                    {stat.change} from last month
-                  </p>
+                  {stat.change && (
+                    <p
+                      className={`text-sm font-medium mt-1 ${stat.changeColor}`}
+                    >
+                      {stat.change} from last month
+                    </p>
+                  )}
                 </div>
                 <div className={`${stat.color} p-3 rounded-lg`}>
                   <Icon className="h-6 w-6 text-white" />
                 </div>
               </div>
-            </div>
+            </Wrapper>
           );
         })}
       </div>
@@ -311,6 +374,18 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-600">Latest customer orders</p>
               </div>
               <div className="flex items-center space-x-2">
+                <select
+                  value={recentLimit}
+                  onChange={(e) => {
+                    setRecentPage(1);
+                    setRecentLimit(Number(e.target.value));
+                  }}
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-xs"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
                 <button className="p-2 text-gray-400 hover:text-gray-600">
                   <Filter className="h-5 w-5" />
                 </button>
@@ -353,8 +428,8 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
+              {visibleRecentOrders.map((order) => (
+                <tr key={order.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {order.orderNumber}
@@ -386,13 +461,25 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-brand hover:text-[rgb(var(--brand-primary-dark))]">
+                        <a
+                          href={`/orders/${order.id}`}
+                          className="text-brand hover:text-[rgb(var(--brand-primary-dark))]"
+                          title="View Order"
+                        >
                           <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="text-gray-600 hover:text-gray-900">
+                        </a>
+                        <a
+                          href={`/admin/orders?order_id=${order.id}`}
+                          className="text-gray-600 hover:text-gray-900"
+                          title="Manage Order"
+                        >
                           <Edit className="h-4 w-4" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900">
+                        </a>
+                        <button
+                          className="text-red-600/40 cursor-not-allowed"
+                          title="Delete not supported"
+                          disabled
+                        >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -402,6 +489,31 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {recentTotalPages > 1 && (
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+              <div className="flex items-center space-x-2 text-sm">
+                <button
+                  onClick={() => setRecentPage((p) => Math.max(1, p - 1))}
+                  disabled={recentPage === 1}
+                  className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+                >
+                  Prev
+                </button>
+                <span>
+                  {recentPage} / {recentTotalPages}
+                </span>
+                <button
+                  onClick={() =>
+                    setRecentPage((p) => Math.min(recentTotalPages, p + 1))
+                  }
+                  disabled={recentPage === recentTotalPages}
+                  className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Top Products */}
@@ -414,18 +526,32 @@ export default function AdminDashboard() {
                 </h2>
                 <p className="text-sm text-gray-600">Best selling products</p>
               </div>
-              <a
-                href="/admin/products"
-                className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] text-sm font-medium"
-              >
-                View all
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </a>
+              <div className="flex items-center gap-3">
+                <select
+                  value={topLimit}
+                  onChange={(e) => {
+                    setTopPage(1);
+                    setTopLimit(Number(e.target.value));
+                  }}
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-xs"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
+                <a
+                  href="/admin/products"
+                  className="flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] text-sm font-medium"
+                >
+                  View all
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </a>
+              </div>
             </div>
           </div>
 
           <div className="divide-y divide-gray-200">
-            {recentProducts.map((product) => (
+            {visibleTopProducts.map((product) => (
               <div key={product.id} className="px-6 py-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -467,6 +593,31 @@ export default function AdminDashboard() {
               </div>
             ))}
           </div>
+          {topTotalPages > 1 && (
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+              <div className="flex items-center space-x-2 text-sm">
+                <button
+                  onClick={() => setTopPage((p) => Math.max(1, p - 1))}
+                  disabled={topPage === 1}
+                  className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+                >
+                  Prev
+                </button>
+                <span>
+                  {topPage} / {topTotalPages}
+                </span>
+                <button
+                  onClick={() =>
+                    setTopPage((p) => Math.min(topTotalPages, p + 1))
+                  }
+                  disabled={topPage === topTotalPages}
+                  className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

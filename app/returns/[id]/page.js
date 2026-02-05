@@ -94,7 +94,8 @@ export default function ReturnDetailPage() {
     );
   }
 
-  const StatusIcon = returnStatusIcons[returnItem.status] || AlertTriangle;
+  const statusValue = returnItem.status || "requested";
+  const StatusIcon = returnStatusIcons[statusValue] || AlertTriangle;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -124,7 +125,7 @@ export default function ReturnDetailPage() {
           }`}
         >
           <StatusIcon className="h-4 w-4 mr-2" />
-          {returnItem.status.toUpperCase()}
+          {statusValue.toUpperCase()}
         </div>
       </div>
 

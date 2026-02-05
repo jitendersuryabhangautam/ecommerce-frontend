@@ -25,6 +25,13 @@
     background: rgb(var(--background-rgb));
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
 }
 
 @layer components {

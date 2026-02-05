@@ -27,9 +27,13 @@ const returnStatusColors = {
 };
 
 export default function AdminReturnsPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const [returns, setReturns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [rangeDays, setRangeDays] = useState(30);
   const [alert, setAlert] = useState({
     show: false,
     message: "",
@@ -42,17 +46,13 @@ export default function AdminReturnsPage() {
     refundAmount: "",
   });
 
-  useEffect(() => {
-    if (isAuthenticated && user?.role === "admin") {
-      fetchReturns();
-    }
-  }, [isAuthenticated, user]);
-
   const fetchReturns = async () => {
     try {
       setLoading(true);
-      const data = await getAllReturnsAction();
-      setReturns(data.returns || []);
+      const data = await getAllReturnsAction({ page, limit, range_days: rangeDays });
+      const payload = data?.data || data;
+      setReturns(payload.returns || []);
+      setTotalPages(payload.meta?.totalPages || 1);
     } catch (error) {
       console.error("Error fetching returns:", error);
       showAlert("Error loading returns", "error");
@@ -60,6 +60,11 @@ export default function AdminReturnsPage() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (isAuthenticated && isAdmin) {
+      fetchReturns();
+    }
+  }, [isAuthenticated, isAdmin, page, limit, rangeDays]);
 
   const showAlert = (message, type = "success") => {
     setAlert({ show: true, message, type });
@@ -104,7 +109,7 @@ export default function AdminReturnsPage() {
     }
   };
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (!isAuthenticated || !isAdmin) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
@@ -145,10 +150,38 @@ export default function AdminReturnsPage() {
         </div>
       )}
 
-      <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
-        <Package className="text-brand" size={32} />
-        Return Management
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Package className="text-brand" size={32} />
+          Return Management
+        </h1>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600">Range</label>
+          <select
+            value={rangeDays}
+            onChange={(e) => setRangeDays(Number(e.target.value))}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value={7}>Last 7 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={90}>Last 90 days</option>
+            <option value={180}>Last 180 days</option>
+            <option value={365}>Last 365 days</option>
+          </select>
+          <select
+            value={limit}
+            onChange={(e) => {
+              setPage(1);
+              setLimit(Number(e.target.value));
+            }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value={10}>10 / page</option>
+            <option value={25}>25 / page</option>
+            <option value={50}>50 / page</option>
+          </select>
+        </div>
+      </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
@@ -253,6 +286,57 @@ export default function AdminReturnsPage() {
           )}
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <nav className="flex items-center space-x-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            {[...Array(totalPages)].map((_, i) => {
+              const pageNumber = i + 1;
+              if (
+                pageNumber === 1 ||
+                pageNumber === totalPages ||
+                (pageNumber >= page - 1 && pageNumber <= page + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => setPage(pageNumber)}
+                    className={`px-4 py-2 rounded-lg text-sm ${
+                      page === pageNumber
+                        ? "bg-brand text-white"
+                        : "border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              }
+              if (pageNumber === page - 2 || pageNumber === page + 2) {
+                return (
+                  <span key={pageNumber} className="px-2">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </nav>
+        </div>
+      )}
 
       {/* Process Return Dialog */}
       {processDialog.open && (

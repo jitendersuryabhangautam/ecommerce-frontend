@@ -15,6 +15,7 @@ import {
 import { formatCurrency, getProductImage } from "@/utils/helpers";
 import { useCart } from "@/contexts/CartContext";
 import { getProductByIdAction } from "@/app/actions/productActions";
+import { getSessionCache, setSessionCache } from "@/utils/clientCache";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function ProductDetailPage() {
@@ -38,8 +39,17 @@ export default function ProductDetailPage() {
   const fetchProduct = async () => {
     try {
       setLoading(true);
+      const cacheKey = `product:${params.id}`;
+      const cached = getSessionCache(cacheKey);
+      if (cached) {
+        setProduct(cached);
+        setLoading(false);
+        return;
+      }
       const response = await getProductByIdAction(params.id);
-      setProduct(response.data || response);
+      const data = response.data || response;
+      setProduct(data);
+      setSessionCache(cacheKey, data);
     } catch (error) {
       console.error("Failed to fetch product:", error);
     } finally {

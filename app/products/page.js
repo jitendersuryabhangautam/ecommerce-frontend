@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Filter, Grid, List, ChevronDown } from "lucide-react";
 import ProductGrid from "@/components/products/ProductGrid";
 import { getAllProductsAction } from "@/app/actions/productActions";
+import { buildCacheKey, getSessionCache, setSessionCache } from "@/utils/clientCache";
 import { CATEGORIES } from "@/utils/constants";
 
 function ProductsPageContent() {
@@ -13,9 +14,12 @@ function ProductsPageContent() {
   const [loading, setLoading] = useState(true);
   const [totalProducts, setTotalProducts] = useState(0);
   const [viewMode, setViewMode] = useState("grid");
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef(null);
+  const [hasMore, setHasMore] = useState(true);
   const [filters, setFilters] = useState({
     page: 1,
-    limit: 12,
+    limit: 16,
     category: searchParams.get("category") || "",
     search: searchParams.get("search") || "",
     sort: "newest",
@@ -23,8 +27,22 @@ function ProductsPageContent() {
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
+    const cacheKey = buildCacheKey("products", filters);
+    const cached = getSessionCache(cacheKey);
+    if (cached && Array.isArray(cached.products)) {
+      setProducts((prev) =>
+        filters.page === 1 ? cached.products : [...prev, ...cached.products]
+      );
+      setTotalProducts(cached.total || 0);
+      setHasMore(
+        (filters.page === 1 ? cached.products.length : products.length + cached.products.length) <
+          (cached.total || 0)
+      );
+      setLoading(false);
+      return;
+    }
     fetchProducts();
-  }, [filters]);
+  }, [filters.page, filters.category, filters.search, filters.sort, filters.limit]);
 
   useEffect(() => {
     const categoryParam = searchParams.get("category") || "";
@@ -41,20 +59,45 @@ function ProductsPageContent() {
       category: normalizedCategory,
       search: searchParam,
       page: 1,
+      limit: 16,
     }));
+    setProducts([]);
+    setHasMore(true);
   }, [searchParams]);
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
+      if (filters.page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
       const response = await getAllProductsAction(filters);
       const payload = response.data || response;
-      setProducts(payload.products || []);
+      const nextProducts = payload.products || [];
+      if (filters.page > 1 && nextProducts.length === 0) {
+        setHasMore(false);
+        return;
+      }
+      setProducts((prev) =>
+        filters.page === 1 ? nextProducts : [...prev, ...nextProducts]
+      );
       setTotalProducts(payload.meta?.total || 0);
+      setHasMore(
+        (filters.page === 1
+          ? nextProducts.length
+          : products.length + nextProducts.length) < (payload.meta?.total || 0)
+      );
+      const cacheKey = buildCacheKey("products", filters);
+      setSessionCache(cacheKey, {
+        products: nextProducts,
+        total: payload.meta?.total || 0,
+      });
     } catch (error) {
       console.error("Failed to fetch products:", error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -70,14 +113,35 @@ function ProductsPageContent() {
   const clearFilters = () => {
     setFilters({
       page: 1,
-      limit: 12,
+      limit: 16,
       category: "",
       search: "",
       sort: "newest",
     });
+    setProducts([]);
   };
 
   const totalPages = Math.ceil(totalProducts / filters.limit);
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (
+          entry.isIntersecting &&
+          !loadingMore &&
+          !loading &&
+          hasMore
+        ) {
+          setFilters((prev) => ({ ...prev, page: prev.page + 1 }));
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [products.length, totalProducts, loadingMore, loading, hasMore]);
 
   return (
     <div className="space-y-8">
@@ -198,17 +262,9 @@ function ProductsPageContent() {
                 </div>
 
                 {/* Items per page */}
-                <select
-                  value={filters.limit}
-                  onChange={(e) =>
-                    handleFilterChange("limit", parseInt(e.target.value))
-                  }
-                  className="input-primary text-sm py-1"
-                >
-                  <option value={12}>12 per page</option>
-                  <option value={24}>24 per page</option>
-                  <option value={48}>48 per page</option>
-                </select>
+                <div className="text-sm text-gray-600">
+                  Loaded {products.length} of {totalProducts}
+                </div>
               </div>
 
               {/* Pagination Info */}
@@ -230,61 +286,10 @@ function ProductsPageContent() {
             />
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-8 flex justify-center">
-              <nav className="flex items-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(filters.page - 1)}
-                  disabled={filters.page === 1}
-                  className="px-3 py-2 rounded-full border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                >
-                  Previous
-                </button>
-
-                {[...Array(totalPages)].map((_, i) => {
-                  const pageNumber = i + 1;
-                  // Show first, last, and pages around current
-                  if (
-                    pageNumber === 1 ||
-                    pageNumber === totalPages ||
-                    (pageNumber >= filters.page - 1 &&
-                      pageNumber <= filters.page + 1)
-                  ) {
-                    return (
-                      <button
-                        key={pageNumber}
-                        onClick={() => handlePageChange(pageNumber)}
-                        className={`px-3 py-2 rounded-full text-sm ${
-                          filters.page === pageNumber
-                            ? "bg-brand text-white"
-                            : "border border-gray-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  } else if (
-                    pageNumber === filters.page - 2 ||
-                    pageNumber === filters.page + 2
-                  ) {
-                    return (
-                      <span key={pageNumber} className="px-2">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
-
-                <button
-                  onClick={() => handlePageChange(filters.page + 1)}
-                  disabled={filters.page === totalPages}
-                  className="px-3 py-2 rounded-full border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                >
-                  Next
-                </button>
-              </nav>
+          <div ref={sentinelRef} className="h-10" />
+          {loadingMore && (
+            <div className="mt-6 flex justify-center text-sm text-gray-500">
+              Loading more products...
             </div>
           )}
         </div>

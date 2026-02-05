@@ -18,6 +18,7 @@ import {
   Calendar,
   AlertCircle,
   Edit,
+  Eye,
 } from "lucide-react";
 
 const statusColors = {
@@ -41,9 +42,13 @@ const statusIcons = {
 };
 
 export default function AdminOrdersPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [rangeDays, setRangeDays] = useState(30);
   const [alert, setAlert] = useState({
     show: false,
     message: "",
@@ -58,8 +63,10 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const data = await getAllOrdersAction();
-      setOrders(data.orders || []);
+      const data = await getAllOrdersAction({ page, limit, range_days: rangeDays });
+      const payload = data?.data || data;
+      setOrders(payload.orders || []);
+      setTotalPages(payload.meta?.totalPages || 1);
     } catch (error) {
       console.error("Error fetching orders:", error);
       showAlert("Error loading orders", "error");
@@ -68,10 +75,10 @@ export default function AdminOrdersPage() {
     }
   };
   useEffect(() => {
-    if (isAuthenticated && user?.role === "admin") {
+    if (isAuthenticated && isAdmin) {
       fetchOrders();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, isAdmin, page, limit, rangeDays]);
 
   const showAlert = (message, type = "success") => {
     setAlert({ show: true, message, type });
@@ -100,7 +107,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (!isAuthenticated || !isAdmin) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
@@ -141,10 +148,38 @@ export default function AdminOrdersPage() {
         </div>
       )}
 
-      <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
-        <Package className="text-brand" size={32} />
-        Order Management
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Package className="text-brand" size={32} />
+          Order Management
+        </h1>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600">Range</label>
+          <select
+            value={rangeDays}
+            onChange={(e) => setRangeDays(Number(e.target.value))}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value={7}>Last 7 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={90}>Last 90 days</option>
+            <option value={180}>Last 180 days</option>
+            <option value={365}>Last 365 days</option>
+          </select>
+          <select
+            value={limit}
+            onChange={(e) => {
+              setPage(1);
+              setLimit(Number(e.target.value));
+            }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value={10}>10 / page</option>
+            <option value={25}>25 / page</option>
+            <option value={50}>50 / page</option>
+          </select>
+        </div>
+      </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
@@ -158,7 +193,13 @@ export default function AdminOrdersPage() {
                   Customer
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Items
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Time
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total
@@ -183,11 +224,17 @@ export default function AdminOrdersPage() {
                       <User size={16} className="text-gray-400" />
                       {order.user?.email || "N/A"}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {Array.isArray(order.items) ? order.items.length : "—"}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <div className="flex items-center gap-2">
                         <Calendar size={16} className="text-gray-400" />
                         {new Date(order.created_at).toLocaleDateString()}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {new Date(order.created_at).toLocaleTimeString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                       <span className="font-semibold">
@@ -206,15 +253,24 @@ export default function AdminOrdersPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() =>
-                          handleStatusChange(order.id, order.status)
-                        }
-                        className="inline-flex items-center gap-2 px-4 py-2 border border-brand text-brand rounded-lg hover:bg-brand-soft transition-colors"
-                      >
-                        <Edit size={16} />
-                        Change Status
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`/orders/${order.id}`}
+                          className="inline-flex items-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <Eye size={16} />
+                          Details
+                        </a>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(order.id, order.status)
+                          }
+                          className="inline-flex items-center gap-2 px-3 py-2 border border-brand text-brand rounded-lg hover:bg-brand-soft transition-colors"
+                        >
+                          <Edit size={16} />
+                          Change Status
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -230,6 +286,57 @@ export default function AdminOrdersPage() {
           )}
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <nav className="flex items-center space-x-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            {[...Array(totalPages)].map((_, i) => {
+              const pageNumber = i + 1;
+              if (
+                pageNumber === 1 ||
+                pageNumber === totalPages ||
+                (pageNumber >= page - 1 && pageNumber <= page + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => setPage(pageNumber)}
+                    className={`px-4 py-2 rounded-lg text-sm ${
+                      page === pageNumber
+                        ? "bg-brand text-white"
+                        : "border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              }
+              if (pageNumber === page - 2 || pageNumber === page + 2) {
+                return (
+                  <span key={pageNumber} className="px-2">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </nav>
+        </div>
+      )}
 
       {/* Status Update Dialog */}
       {statusDialog.open && (

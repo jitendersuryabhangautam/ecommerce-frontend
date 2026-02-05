@@ -73,6 +73,7 @@ export default function ProductGrid({
             <div
               key={product.id}
               className="bg-white border border-gray-100 p-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow"
+              style={{ contentVisibility: "auto", containIntrinsicSize: "160px" }}
             >
               <Link href={`/products/${product.id}`} className="shrink-0">
                 <div className="relative h-28 w-28 bg-gray-100 overflow-hidden">
@@ -180,11 +181,12 @@ export default function ProductGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => (
-        <ProductCard
+        <div
           key={product.id}
-          product={product}
-          imageHeightClass={imageHeightClass}
-        />
+          style={{ contentVisibility: "auto", containIntrinsicSize: "360px" }}
+        >
+          <ProductCard product={product} imageHeightClass={imageHeightClass} />
+        </div>
       ))}
     </div>
   );
