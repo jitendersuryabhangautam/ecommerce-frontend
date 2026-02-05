@@ -9,7 +9,7 @@ import {
   getTopAdminProductsAction,
 } from "@/app/actions/adminActions";
 import {
-  DollarSign,
+  IndianRupee,
   ShoppingCart,
   Package,
   Users,
@@ -24,14 +24,7 @@ import {
   MoreVertical,
   Calendar,
 } from "lucide-react";
-
-// Add these helper functions at the top or import from utils
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-};
+import { formatCurrency } from "@/utils/helpers";
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString("en-US", {
@@ -187,7 +180,7 @@ export default function AdminDashboard() {
     {
       title: "Total Revenue",
       value: formatCurrency(stats.totalRevenue),
-      icon: DollarSign,
+      icon: IndianRupee,
       color: "bg-green-500",
       change: "+12.5%",
       changeColor: "text-green-600",

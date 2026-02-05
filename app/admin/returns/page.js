@@ -12,12 +12,13 @@ import {
   XCircle,
   Clock,
   Package,
-  DollarSign,
+  IndianRupee,
   User,
   Calendar,
   FileText,
   AlertCircle,
 } from "lucide-react";
+import { formatCurrency } from "@/utils/helpers";
 
 const returnStatusColors = {
   requested: "bg-yellow-100 text-yellow-800",
@@ -246,8 +247,8 @@ export default function AdminReturnsPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {returnItem.refund_amount ? (
                       <span className="flex items-center gap-1 font-semibold">
-                        <DollarSign size={16} className="text-gray-400" />
-                        {returnItem.refund_amount}
+                        <IndianRupee size={16} className="text-gray-400" />
+                        {formatCurrency(returnItem.refund_amount)}
                       </span>
                     ) : (
                       "N/A"
@@ -352,7 +353,7 @@ export default function AdminReturnsPage() {
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-gray-500">
-                    $
+                    ₹
                   </span>
                   <input
                     type="number"

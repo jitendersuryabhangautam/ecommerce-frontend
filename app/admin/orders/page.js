@@ -13,13 +13,14 @@ import {
   Clock,
   Package,
   Truck,
-  DollarSign,
+  IndianRupee,
   User,
   Calendar,
   AlertCircle,
   Edit,
   Eye,
 } from "lucide-react";
+import { formatCurrency } from "@/utils/helpers";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -38,7 +39,7 @@ const statusIcons = {
   delivered: CheckCircle,
   completed: CheckCircle,
   cancelled: XCircle,
-  refunded: DollarSign,
+  refunded: IndianRupee,
 };
 
 export default function AdminOrdersPage() {
@@ -238,7 +239,7 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                       <span className="font-semibold">
-                        ${order.total_amount}
+                        {formatCurrency(order.total_amount)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

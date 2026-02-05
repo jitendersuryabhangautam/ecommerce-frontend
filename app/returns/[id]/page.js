@@ -9,7 +9,7 @@ import {
   Receipt,
   Package,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Clock,
   CheckCircle,
   XCircle,
@@ -221,7 +221,7 @@ export default function ReturnDetailPage() {
               {returnItem.refund_amount && (
                 <div className="mt-6">
                   <h3 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
-                    <DollarSign className="h-5 w-5 mr-2 text-green-600" />
+                    <IndianRupee className="h-5 w-5 mr-2 text-green-600" />
                     Refund Information
                   </h3>
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -321,7 +321,7 @@ export default function ReturnDetailPage() {
                       Order Total
                     </p>
                     <div className="flex items-center mt-1">
-                      <DollarSign className="h-4 w-4 text-gray-400 mr-1" />
+                      <IndianRupee className="h-4 w-4 text-gray-400 mr-1" />
                       <p className="text-xl font-bold text-gray-900">
                         {formatCurrency(returnItem.order.total_amount)}
                       </p>

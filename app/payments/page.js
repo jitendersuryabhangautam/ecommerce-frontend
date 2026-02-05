@@ -13,7 +13,7 @@ import { formatCurrency } from "@/utils/helpers";
 import {
   CreditCard,
   Calendar,
-  DollarSign,
+  IndianRupee,
   CheckCircle,
   XCircle,
   Clock,
@@ -33,7 +33,7 @@ const statusIcons = {
   completed: CheckCircle,
   pending: Clock,
   failed: XCircle,
-  refunded: DollarSign,
+  refunded: IndianRupee,
 };
 
 function PaymentsPageContent() {
@@ -190,7 +190,7 @@ function PaymentsPageContent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                       <span className="font-semibold flex items-center justify-end gap-1">
-                        <DollarSign size={16} className="text-gray-400" />
+                        <IndianRupee size={16} className="text-gray-400" />
                         {formatCurrency(payment.amount)}
                       </span>
                     </td>
@@ -287,7 +287,7 @@ function PaymentsPageContent() {
             <div>
               <p className="text-gray-500">Amount</p>
               <p className="font-medium text-gray-900">
-                {selectedPayment.amount}
+                {formatCurrency(selectedPayment.amount)}
               </p>
             </div>
             <div>
@@ -329,7 +329,7 @@ function PaymentsPageContent() {
 
           <div className="bg-brand-soft border border-[rgba(255,63,108,0.2)] rounded-lg p-4">
             <div className="flex items-center gap-3">
-              <DollarSign className="text-brand" size={24} />
+              <IndianRupee className="text-brand" size={24} />
               <div>
                 <p className="text-sm text-brand font-medium">Total Spent</p>
                 <p className="text-2xl font-bold text-[rgb(var(--brand-primary-dark))]">

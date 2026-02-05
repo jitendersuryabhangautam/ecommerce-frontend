@@ -19,7 +19,7 @@ import {
   ShoppingBag,
   Plus,
   Calendar,
-  DollarSign,
+  IndianRupee,
   AlertCircle,
   Search,
   ChevronDown,
@@ -298,7 +298,7 @@ export default function ReturnsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <DollarSign className="h-4 w-4 text-gray-400 mr-1" />
+                          <IndianRupee className="h-4 w-4 text-gray-400 mr-1" />
                           <span className="text-sm font-medium text-gray-900">
                             {returnItem.refund_amount
                               ? formatCurrency(returnItem.refund_amount)
