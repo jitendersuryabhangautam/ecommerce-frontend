@@ -20,8 +20,10 @@ import {
   AlertCircle,
   Edit,
   Eye,
+  ArrowLeft,
 } from "lucide-react";
 import { formatCurrency } from "@/utils/helpers";
+import Link from "next/link";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -138,6 +140,13 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8">
+      <Link
+        href="/admin"
+        className="inline-flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Dashboard
+      </Link>
       {/* Alert */}
       {alert.show && (
         <div

@@ -7,7 +7,8 @@ import {
   updateAdminUserRoleAction,
 } from "@/app/actions/adminActions";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { Users, AlertCircle, Shield } from "lucide-react";
+import { Users, AlertCircle, Shield, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function AdminUsersPage() {
   const { isAuthenticated, isAdmin, user: currentUser } = useAuth();
@@ -82,6 +83,13 @@ export default function AdminUsersPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8">
+      <Link
+        href="/admin"
+        className="inline-flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Dashboard
+      </Link>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
           <Users className="text-brand h-6 w-6 sm:h-7 sm:w-7" size={28} />

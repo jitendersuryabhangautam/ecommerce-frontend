@@ -13,8 +13,10 @@ import {
   Users,
   ShoppingCart,
   AlertCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { formatCurrency } from "@/utils/helpers";
+import Link from "next/link";
 
 export default function AdminAnalyticsPage() {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -105,6 +107,13 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
+      <Link
+        href="/admin"
+        className="inline-flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))]"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Dashboard
+      </Link>
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
         <p className="text-gray-600 mt-1">Track revenue and performance.</p>

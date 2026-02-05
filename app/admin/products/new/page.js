@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { createProductAction } from "@/app/actions/productActions";
-import { Package, AlertCircle } from "lucide-react";
+import { Package, AlertCircle, ArrowLeft } from "lucide-react";
 import { formatCurrency } from "@/utils/helpers";
 import { CATEGORIES } from "@/utils/constants";
+import Link from "next/link";
 
 const emptyForm = {
   name: "",
@@ -90,6 +91,13 @@ export default function NewProductPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Link
+        href="/admin/products"
+        className="inline-flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Products
+      </Link>
       <div className="flex items-center gap-3 mb-6">
         <Package className="text-brand" size={28} />
         <h1 className="text-2xl font-bold text-gray-900">Add Product</h1>

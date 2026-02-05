@@ -11,8 +11,9 @@ import {
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { formatCurrency } from "@/utils/helpers";
 import { CATEGORIES } from "@/utils/constants";
-import { Plus, Edit, Trash2, Package, AlertCircle } from "lucide-react";
+import { Plus, Edit, Trash2, Package, AlertCircle, ArrowLeft } from "lucide-react";
 import { getProductImage } from "@/utils/helpers";
+import Link from "next/link";
 
 const emptyForm = {
   name: "",
@@ -177,6 +178,13 @@ export default function AdminProductsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Link
+        href="/admin"
+        className="inline-flex items-center text-brand hover:text-[rgb(var(--brand-primary-dark))] mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Dashboard
+      </Link>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Package className="text-brand" size={32} />

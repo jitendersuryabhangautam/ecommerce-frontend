@@ -530,9 +530,9 @@ export default function OrderDetailPage() {
                 Order Items
               </h2>
               <div className="space-y-4 sm:space-y-6">
-                {order.items?.map((item) => (
+                {order.items?.map((item, index) => (
                   <div
-                    key={item.id}
+                    key={item.id || item.product_id || `${item.product?.id || "item"}-${index}`}
                     className="flex flex-col sm:flex-row items-start sm:items-center border-b pb-5 sm:pb-6 last:border-0 last:pb-0 gap-4"
                   >
                     <div className="h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-md border border-gray-200">
