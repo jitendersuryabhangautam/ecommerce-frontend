@@ -21,9 +21,7 @@ export default function ProductCard({ product, imageHeightClass = "h-64" }) {
     setAddingToCart(false);
   };
 
-  const cartItem = cart?.items?.find(
-    (item) => item.product?.id === product.id
-  );
+  const cartItem = cart?.items?.find((item) => item.product?.id === product.id);
 
   const handleDecrease = async () => {
     if (!cartItem) return;
@@ -43,7 +41,10 @@ export default function ProductCard({ product, imageHeightClass = "h-64" }) {
       setUpdatingItem(false);
       return;
     }
-    await handleAddToCart({ preventDefault: () => {}, stopPropagation: () => {} });
+    await handleAddToCart({
+      preventDefault: () => {},
+      stopPropagation: () => {},
+    });
   };
 
   const imageUrl = getProductImage(product.image_url);
@@ -55,7 +56,9 @@ export default function ProductCard({ product, imageHeightClass = "h-64" }) {
         href={`/products/${product.id}`}
         aria-label={`View ${product.name}`}
       >
-        <div className={`relative ${imageHeightClass} w-full overflow-hidden bg-gray-100`}>
+        <div
+          className={`relative ${imageHeightClass} w-full overflow-hidden bg-gray-100`}
+        >
           <Image
             src={imageUrl}
             alt={product.name}
@@ -127,7 +130,7 @@ export default function ProductCard({ product, imageHeightClass = "h-64" }) {
               >
                 -
               </button>
-              <span className="px-3 py-2 border-x border-gray-200 min-w-[36px] text-center text-sm">
+              <span className="px-3 py-2 border-x border-gray-200 min-w-9 text-center text-sm">
                 {updatingItem ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand border-t-transparent mx-auto" />
                 ) : (
@@ -164,4 +167,3 @@ export default function ProductCard({ product, imageHeightClass = "h-64" }) {
     </div>
   );
 }
-
